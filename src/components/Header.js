@@ -10,15 +10,21 @@ import {
 } from "react-bootstrap";
 
 class Header extends Component {
-  state = {};
+  constructor() {
+    super();
+    this.state = { title: "Ayush Sehgal" };
+    this.title = "Ayush Sehgal";
+  }
+
   navStyle = {
     color: "white",
   };
+
   render() {
     return (
       <div>
         <Navbar bg="dark" variant="dark">
-          <Navbar.Brand href="#home">Ayush Sehgal</Navbar.Brand>
+          <Navbar.Brand href="#home">{this.title}</Navbar.Brand>
           <Nav className="ml-auto">
             <Nav.Link>
               <Link style={this.navStyle} to="/">
@@ -39,8 +45,6 @@ class Header extends Component {
             </Nav.Link>
           </Nav>
         </Navbar>
-
-        {/* <h1 className="App-header">Ayush Sehgal</h1> */}
       </div>
     );
   }
