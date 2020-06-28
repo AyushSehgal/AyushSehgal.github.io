@@ -11,6 +11,9 @@ import {
 
 class Header extends Component {
   state = {};
+  navStyle = {
+    color: "white",
+  };
   render() {
     return (
       <div>
@@ -18,12 +21,20 @@ class Header extends Component {
           <Navbar.Brand href="#home">Ayush Sehgal</Navbar.Brand>
           <Nav className="ml-auto">
             <Nav.Link>
-              <Link>Home</Link>
+              <Link style={this.navStyle} to="/">
+                Home
+              </Link>
             </Nav.Link>
             <Nav.Link>
-              <Link>CS61B</Link>
+              <Link style={this.navStyle} to="/CS61B">
+                CS61B
+              </Link>
             </Nav.Link>
-            <Nav.Link href="http://ayushsehgal.com" target="_blank">
+            <Nav.Link
+              style={this.navStyle}
+              href="http://ayushsehgal.com"
+              target="_blank"
+            >
               Personal Site
             </Nav.Link>
           </Nav>
