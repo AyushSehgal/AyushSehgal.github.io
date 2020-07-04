@@ -15,8 +15,9 @@ function Home() {
         style={{
           background: "#282c34",
           color: "white",
-          minHeight: "100vh",
+          // minHeight: "75%",
           width: "90vw",
+          height: "540px",
           margin: "auto",
         }}
       ></Grid>
