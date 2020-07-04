@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import {
   Navbar,
   Nav,
+  NavLink,
   NavDropdown,
   Form,
   FormControl,
@@ -12,37 +13,40 @@ import {
 class Header extends Component {
   constructor() {
     super();
-    this.state = { title: "Ayush Sehgal" };
-    this.title = "Ayush Sehgal";
   }
 
   navStyle = {
     color: "white",
+    textDecoration: "none",
   };
 
   render() {
     return (
-      <div>
+      <div style={{ position: "fixed", top: "0", width: "100%" }}>
         <Navbar bg="dark" variant="dark">
-          <Navbar.Brand href="#home">{this.title}</Navbar.Brand>
+          <Navbar.Brand href="#home">
+            <Link style={this.navStyle} to="/">
+              Ayush Sehgal
+            </Link>
+          </Navbar.Brand>
           <Nav className="ml-auto">
-            <Nav.Link>
+            <NavLink style={this.navStyle} to="/">
               <Link style={this.navStyle} to="/">
                 Home
               </Link>
-            </Nav.Link>
-            <Nav.Link>
+            </NavLink>
+            <NavLink style={this.navStyle} to="/CS61B">
               <Link style={this.navStyle} to="/CS61B">
                 CS61B
               </Link>
-            </Nav.Link>
-            <Nav.Link
+            </NavLink>
+            <NavLink
               style={this.navStyle}
               href="http://ayushsehgal.com"
               target="_blank"
             >
               Personal Site
-            </Nav.Link>
+            </NavLink>
           </Nav>
         </Navbar>
       </div>
