@@ -13,6 +13,7 @@ function Home() {
       <Intro />
       <br />
       <Resources />
+      <br />
     </div>
   );
 }

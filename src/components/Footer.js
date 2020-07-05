@@ -11,7 +11,6 @@ class Footer extends Component {
           right: "0",
           bottom: "0",
           width: "100%",
-          position: "fixed",
           overflow: "hidden",
         }}
       >

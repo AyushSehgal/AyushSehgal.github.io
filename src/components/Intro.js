@@ -32,7 +32,6 @@ class Intro extends Component {
             </div>
             <div className="col-sm-10">
               <p className="cardText" style={{ fontSize: "15pt" }}>
-                <br />
                 Glad you stumbled upon this site. The point of this space is for
                 me to post resources I have either made and/or compiled for
                 various classes in the EECS department at UC Berkeley. Some of
@@ -42,6 +41,9 @@ class Intro extends Component {
                 projects, click the Personal Site link in the header. Yes, I
                 have a separate website for that stuff (thanks to free online
                 website hosting!).
+              </p>
+              <p>
+                Checkout my personal github and linkedin page in the footer!
               </p>
             </div>
           </div>
