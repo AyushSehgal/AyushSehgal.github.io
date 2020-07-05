@@ -46,6 +46,15 @@ class Resources extends Component {
               Academic Guide with Course List for EECS/CS Majors
             </li>
           </a>
+          <a
+            href="https://github.com/AyushSehgal/AyushSehgal.github.io"
+            target="_blank"
+            style={{ textDecoration: "none" }}
+          >
+            <li class="list-group-item card-action">
+              GitHub Repo for this site
+            </li>
+          </a>
         </ul>
       </div>
     );
