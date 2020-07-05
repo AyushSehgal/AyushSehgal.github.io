@@ -22,34 +22,34 @@ class Header extends Component {
 
   render() {
     return (
-      <div style={{ position: "fixed", top: "0", width: "100%" }}>
-        <Navbar bg="dark" variant="dark">
-          <Navbar.Brand href="#home">
+      // <div style={{ position: "fixed", top: "0", width: "100%" }}>
+      <Navbar bg="dark" variant="dark" fixed="top">
+        <Navbar.Brand href="#home">
+          <Link style={this.navStyle} to="/">
+            Ayush Sehgal
+          </Link>
+        </Navbar.Brand>
+        <Nav className="ml-auto">
+          <NavLink style={this.navStyle} to="/">
             <Link style={this.navStyle} to="/">
-              Ayush Sehgal
+              Home
             </Link>
-          </Navbar.Brand>
-          <Nav className="ml-auto">
-            <NavLink style={this.navStyle} to="/">
-              <Link style={this.navStyle} to="/">
-                Home
-              </Link>
-            </NavLink>
-            <NavLink style={this.navStyle} to="/CS61B">
-              <Link style={this.navStyle} to="/CS61B">
-                CS61B
-              </Link>
-            </NavLink>
-            <NavLink
-              style={this.navStyle}
-              href="http://ayushsehgal.com"
-              target="_blank"
-            >
-              Personal Site
-            </NavLink>
-          </Nav>
-        </Navbar>
-      </div>
+          </NavLink>
+          <NavLink style={this.navStyle} to="/CS61B">
+            <Link style={this.navStyle} to="/CS61B">
+              CS61B
+            </Link>
+          </NavLink>
+          <NavLink
+            style={this.navStyle}
+            href="http://ayushsehgal.com"
+            target="_blank"
+          >
+            Personal Site
+          </NavLink>
+        </Nav>
+      </Navbar>
+      //</div>
     );
   }
 }

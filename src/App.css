@@ -16,5 +16,5 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-  margin-top: 7%;
+  margin-top: 56px; /* Measured size of React Bootstrap NavBar and placed page header accordingly */
 }

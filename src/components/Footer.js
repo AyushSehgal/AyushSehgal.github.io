@@ -8,9 +8,10 @@ class Footer extends Component {
         style={{
           background: "#343A40",
           left: "0",
+          right: "0",
           bottom: "0",
           width: "100%",
-          position: "absolute",
+          position: "fixed",
           overflow: "hidden",
         }}
       >
