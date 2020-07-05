@@ -18,3 +18,8 @@
   color: white;
   margin-top: 56px; /* Measured size of React Bootstrap NavBar and placed page header accordingly */
 }
+
+li:hover {
+  background-color: #343a40;
+  color: #fa9056;
+}
