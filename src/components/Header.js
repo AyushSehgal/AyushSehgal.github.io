@@ -22,7 +22,7 @@ class Header extends Component {
 
   render() {
     return (
-      // <div style={{ position: "fixed", top: "0", width: "100%" }}>
+      <div style={{ position: "fixed", top: "0", width: "100%" }}>
       <Navbar bg="dark" variant="dark" fixed="top">
         <Navbar.Brand href="#home">
           <Link style={this.navStyle} to="/">
@@ -49,7 +49,7 @@ class Header extends Component {
           </NavLink>
         </Nav>
       </Navbar>
-      //</div>
+      </div>
     );
   }
 }

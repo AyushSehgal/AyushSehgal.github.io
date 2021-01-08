@@ -19,7 +19,7 @@ class Intro extends Component {
       <div>
         <div className="menu"></div>
         <div
-          // className="card"
+          className="card"
           style={{
             background: "#282c34",
             color: "white",
@@ -28,14 +28,14 @@ class Intro extends Component {
             minWidth: "212px",
           }}
         >
-          <div className="card-body">
+          <div className="card-body" style={{position: "relative"}}>
             <div className="row">
               <div className="col-lg-2">
                 <img
                   className="img-fluid"
                   src={profi}
                   alt="Card image cap"
-                  style={{ minWidth: "200px" }}
+                  style={{ position: "relative", minWidth: "200px" }}
                 ></img>
               </div>
               <div className="col-lg-10">

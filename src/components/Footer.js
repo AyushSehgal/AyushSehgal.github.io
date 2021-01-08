@@ -7,6 +7,7 @@ class Footer extends Component {
       <div
         style={{
           background: "#343A40",
+          position: "fixed",
           left: "0",
           right: "0",
           bottom: "0",
@@ -32,7 +33,7 @@ class Footer extends Component {
           </a>
         </div>
         <p style={{ color: "white", fontSize: "small" }}>
-          Copyright © 2020 By Ayush Sehgal
+          Copyright © 2021 By Ayush Sehgal
         </p>
       </div>
     );

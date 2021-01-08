@@ -15,14 +15,14 @@ class Resources extends Component {
           minWidth: "212px",
         }}
       >
-        <div class="card-header">Quick Links</div>
-        <ul class="list-group list-group-flush">
+        <div className="card-header">Quick Links</div>
+        <ul className="list-group list-group-flush">
           <a
             href="https://github.com/AyushSehgal/Course-Content"
             target="_blank"
             style={{ textDecoration: "none" }}
           >
-            <li class="list-group-item card-action">
+            <li className="list-group-item card-action">
               Github Repo: Houses all the course content I have personally
               developed
             </li>
@@ -33,7 +33,7 @@ class Resources extends Component {
             target="_blank"
             style={{ textDecoration: "none" }}
           >
-            <li class="list-group-item card-action">
+            <li className="list-group-item card-action">
               HKN's Course Map for EECS/CS Majors
             </li>
           </a>
@@ -42,7 +42,7 @@ class Resources extends Component {
             target="_blank"
             style={{ textDecoration: "none" }}
           >
-            <li class="list-group-item card-action">
+            <li className="list-group-item card-action">
               Academic Guide with Course List for EECS/CS Majors
             </li>
           </a>
@@ -51,7 +51,7 @@ class Resources extends Component {
             target="_blank"
             style={{ textDecoration: "none" }}
           >
-            <li class="list-group-item card-action">
+            <li className="list-group-item card-action">
               GitHub Repo for this site
             </li>
           </a>
