@@ -20,7 +20,7 @@ function Home() {
       <center>
         <Window
           chrome
-          width="50vw"
+          width="75vw"
           height="43vh"
           padding="15px"
         >
@@ -28,7 +28,7 @@ function Home() {
               className="img-fluid"
               src={profi}
               alt="Card image cap"
-              style={{ width: "14vw", height: "36vh", padding: "10px"}}
+              style={{ width: "14vw", height: "36vh", minWidth: "200px", padding: "10px"}}
             ></img>
           <TitleBar
           title="Home"
@@ -51,13 +51,7 @@ function Home() {
                     Checkout my personal github and linkedin page!     
           </Text>
           
-          <Dock width={800} magnification={2} magnifyDirection="up">
-              {["finder", "prof", "61bLogo"].map((item, index) => (
-              <Dock.Item key={index} onClick={() => console.log(item)}>
-                 <img src={`${item}.png`} />
-              </Dock.Item>
-            ))}
-          </Dock>
+          
                     
         </Window>
       </center>
