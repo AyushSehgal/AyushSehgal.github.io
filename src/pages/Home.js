@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import "../App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Window, TitleBar, Text, Button } from "react-desktop/macOs";
+
+import Dock from "../components/Dock";
+
+
 import profi from "../img/prof.png";
 
-import Intro from "../components/Intro";
-import Resources from "../components/Resources";
 
-import Dock from "react-osx-dock";
-import finder from "../img/finder.png";
+
 
 
 function Home() {
@@ -49,13 +50,11 @@ function Home() {
                     <br />
                     <br />
                     Checkout my personal github and linkedin page!     
-          </Text>
-          
-          
-                    
+          </Text>                 
         </Window>
       </center>
-     
+      <Dock>
+      </Dock>
       
     </div>
   );
