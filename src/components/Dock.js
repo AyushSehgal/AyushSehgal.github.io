@@ -4,6 +4,7 @@ import "../dock.css";
 import finder from "../img/finder.png";
 import ClassLogo from "../img/61bLogo.png";
 import resources from "../img/resources.png";
+import websiteLogo from "../img/orangeFloof.png";
 
 export default function Dock() {
     return (
@@ -14,13 +15,18 @@ export default function Dock() {
             <div className="dock-nav">
                 <ul>
                     <li>
-                        <img src={finder} className="img-fluid" width="40" height="40"></img>
+                        <a><img src={finder} className="img-fluid" width="40" height="40"/></a>
                     </li>
                     <li>
                         <img src={ClassLogo} className="img-fluid" width="40" height="40"></img>
                     </li>
                     <li>
                         <img src={resources} className="img-fluid" width="40" height="40"></img>
+                    </li>
+                    <li> 
+                        <a href="http://ayushsehgal.com" target="_blank">
+                            <img src={websiteLogo} className="img-fluid" width="40" height="80" />
+                        </a>
                     </li>
                 </ul>
                 
