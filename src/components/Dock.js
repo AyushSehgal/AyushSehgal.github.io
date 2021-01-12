@@ -6,6 +6,8 @@ import ClassLogo from "../img/61bLogo.png";
 import resources from "../img/resources.png";
 import websiteLogo from "../img/orangeFloof.png";
 
+
+
 export default function Dock() {
     return (
         <div className="dock">

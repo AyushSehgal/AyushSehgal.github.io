@@ -2,26 +2,24 @@ import React, { useState } from "react";
 import "../App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Window, TitleBar, Text, Button } from "react-desktop/macOs";
-
-import Dock from "../components/Dock";
-
-
+import BlankWindow from "../components/BlankWindow";
 import profi from "../img/prof.png";
 
 
 
 
 
-function Home() {
-  
+function Home(props) {
   return (
     <div className="App">
-      <h1 className="App-header">Welcome!</h1>
-      <br />
+      
+    <h1 className="App-header">Welcome!</h1>
+    <br />
+      
       <center>
         <Window
           chrome
-          width="75vw"
+          width="55vw"
           height="43vh"
           padding="15px"
         >
@@ -29,7 +27,7 @@ function Home() {
               className="img-fluid"
               src={profi}
               alt="Card image cap"
-              style={{ width: "14vw", height: "36vh", minWidth: "200px", padding: "10px"}}
+              style={{ width: "14vw", height: "36vh", padding: "10px"}}
             ></img>
           <TitleBar
           title="Home"
@@ -53,10 +51,8 @@ function Home() {
           </Text>                 
         </Window>
       </center>
-      <Dock>
-      </Dock>
-      
-    </div>
+  </div>
+    
   );
 }
 

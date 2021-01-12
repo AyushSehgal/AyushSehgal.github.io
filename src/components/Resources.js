@@ -5,7 +5,9 @@ class Resources extends Component {
   state = {};
   render() {
     return (
-      <div
+      
+      
+        <div
         className="card"
         style={{
           background: "#282c34",
@@ -56,7 +58,10 @@ class Resources extends Component {
             </li>
           </a>
         </ul>
+      
       </div>
+  
+      
     );
   }
 }
