@@ -8,7 +8,8 @@ import websiteLogo from "../img/orangeFloof.png";
 
 
 
-export default function Dock() {
+
+export default function Dock(props) {
     return (
         <div className="dock">
             <span className="spanner">

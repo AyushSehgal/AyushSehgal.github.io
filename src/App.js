@@ -20,19 +20,8 @@ class App extends Component {
       home: true,
       resource: false
      }
-    this.showComponenet = this.showComponenet.bind(this);
   } 
 
-  showComponenet(tag) {
-      switch (tag) {
-        case "home":
-          this.setState({home: true, resource: false});
-          break;
-        case "resource":
-          this.setState({home: false, resource: true});
-          break;
-      }
-  }
 
   render() { 
     return (
