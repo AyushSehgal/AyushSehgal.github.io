@@ -23,6 +23,7 @@
 								<h1>Ayush Sehgal</h1>
 								<p>Drummer, Artist, Student, Engineer</p>
 								<ul class="icons">
+									<li><a href="mailto: ayushsehgal@gmail.com" target="_blank" class="icon fa-light fa-envelope"><span class="label">Email</span></a></li>
 									<li><a href="https://www.instagram.com/ayushsehgal25/" target="_blank" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
 									<li><a href="https://github.com/AyushSehgal/" target="_blank" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
 									<li><a href="https://www.linkedin.com/in/ayush-sehgal" target="_blank" class="icon brands fa-linkedin"><span class="label">GitHub</span></a></li>
@@ -34,8 +35,8 @@
 								<li><a href="#about">About</a></li>
 								<li><a href="#art">Art</a></li>
 								<li><a href="#projects">Projects</a></li>
-								<li><a href="#contact">Contact</a></li>
-								<li><a href="#elements">Elements</a></li>
+								<!-- <li><a href="#contact">Contact</a></li> -->
+								<!-- <li><a href="#elements">Elements</a></li> -->
 							</ul>
 						</nav>
 					</header>
@@ -52,16 +53,17 @@
 							</article>
 
 						<!-- art -->
-							<article id="art" style="width:100rem">
+							<article id="art" style="width:100rem; height:100rem">
 								<h2 class="major">Art</h2>
-								<div class="gallery">
+								<!-- <div class="gallery">
 									<div class="top">
 										<ul id="list">
 											<li><a href="#img_1"><img src="./images/paintings/0001.jpg"></a></li>
 										</ul>
 										<a href="#_1" class="lightbox trans" id="img_1"><img src="./images/paintings/0001.jpg"></a>
 									  </div>
-								  </div>
+								  </div> -->
+								  <p>For now, visit <a href="https://ayushsehgal252.wixsite.com/website/art" target="_blank">this site</a></p>
 							
 							</article>
 						
@@ -69,7 +71,7 @@
 						<!-- Contact -->
 							<article id="contact">
 								<h2 class="major">Contact</h2>
-								<form method="post" action="#">
+								<form method="post" action=”mailto:ayushsehgal@gmail.com”>
 									<div class="fields">
 										<div class="field half">
 											<label for="name">Name</label>
@@ -90,6 +92,13 @@
 									</ul>
 								</form>
 							</article>
+
+						<!-- Projects -->
+						<article id="projects">
+							<h2 class="major">Projects</h2>
+							<p>Coming soon...</p>
+							<p>For now, visit <a href="https://ayushsehgal252.wixsite.com/website/projects" target="_blank">this site</a></p>
+						</article>
 
 						<!-- Elements -->
 							<article id="elements">
@@ -353,22 +362,4 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 			<script src="assets/js/main.js"></script>
 
 	</body>
-	<script>
-		function addingImages() {
-			for (var i = 3; i <= 63; i++) {
-				if (i / 10 < 1) {
-					i = "0" + i;
-				}
-				var image = document.createElement("img");
-				image.setAttribute("src", "./images/paintings/00" + i + ".jpg");
-				var a = document.createElement("a");
-				a.setAttribute("href", "#img_" + i-1);
-				a.appendChild(image);
-				var li = document.createElement("li");
-				li.appendChild(a)
-				document.getElementById("list").appendChild(li);
-			}
-		}
-		addingImages();
-	</script>
 </html>
