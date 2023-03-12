@@ -5,7 +5,7 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
-		<link rel="stylesheet" href="assets/css/gallery.css" />
+		<link rel="stylesheet" href="assets/css/projects.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
 	<body class="is-preload">
@@ -22,12 +22,14 @@
 							<div class="inner">
 								<h1>Ayush Sehgal</h1>
 								<p>Drummer, Artist, Student, Engineer</p>
-								<ul class="icons">
+								<ul class="icons tooltip">
 									<li><a href="mailto: ayushsehgal@gmail.com" target="_blank" class="icon fa-light fa-envelope"><span class="label">Email</span></a></li>
 									<li><a href="https://www.instagram.com/ayushsehgal25/" target="_blank" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
 									<li><a href="https://github.com/AyushSehgal/" target="_blank" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
 									<li><a href="https://www.linkedin.com/in/ayush-sehgal" target="_blank" class="icon brands fa-linkedin"><span class="label">GitHub</span></a></li>
+									<li><a href="https://ayushsehgal252.wixsite.com/website" target="_blank" class="icon fa-window-restore"><span class="label"></span></a></li>
 								</ul>
+								<p class="hide">Email, Instagram, Github, Linkedin, Legacy Website</p>
 							</div>
 						</div>
 						<nav>
@@ -35,8 +37,6 @@
 								<li><a href="#about">About</a></li>
 								<li><a href="gallery.html">Art</a></li>
 								<li><a href="#projects">Projects</a></li>
-								<!-- <li><a href="#contact">Contact</a></li> -->
-								<!-- <li><a href="#elements">Elements</a></li> -->
 							</ul>
 						</nav>
 					</header>
@@ -51,289 +51,36 @@
 								<p>Hey, I'm Ayush. Born and raised in Bangkok, Thailand. I graduated from Ruamrudee International School with an IB Diploma in 2018. I completed my Undergraduate Degree in Computer Science and Data Science at UC Berkeley in Spring 2022. I am currently a Software Engineer at Electronic Arts and am part of the social team working to integrate friends/groups based social features in games. </p>
 								<p></p>
 							</article>
-
-						<!-- art -->
-							<!-- <article id="art" style="width:100rem; height:100rem">
-								<h2 class="major">Art</h2>
-								<p>For now, visit my legacy <a href="https://ayushsehgal252.wixsite.com/website/art" target="_blank">site</a></p>
-								<iframe src="./gallery.html" style="width: 100%; height:100%"></iframe>
-							
-							</article> -->
 						
-
-						<!-- Contact -->
-							<article id="contact">
-								<h2 class="major">Contact</h2>
-								<form method="post" action=”mailto:ayushsehgal@gmail.com”>
-									<div class="fields">
-										<div class="field half">
-											<label for="name">Name</label>
-											<input type="text" name="name" id="name" />
-										</div>
-										<div class="field half">
-											<label for="email">Email</label>
-											<input type="text" name="email" id="email" />
-										</div>
-										<div class="field">
-											<label for="message">Message</label>
-											<textarea name="message" id="message" rows="4"></textarea>
-										</div>
-									</div>
-									<ul class="actions">
-										<li><input type="submit" value="Send Message" class="primary" /></li>
-										<li><input type="reset" value="Reset" /></li>
-									</ul>
-								</form>
-							</article>
-
 						<!-- Projects -->
 						<article id="projects">
-							<h2 class="major">Projects</h2>
-							<p>Coming soon...</p>
-							<p>For now, visit <a href="https://ayushsehgal252.wixsite.com/website/projects" target="_blank">this site</a></p>
+							<h2 class="major" style="color:#CE9178">Projects</h2>
+							<p>Below are a list of my projects throughout the years. Some of these I did through my classes and some I did for fun, as a learning opportunity, or to improve/optimize some aspect of my life. Please click the github icon where it shows up to check out the repos with the code. Not everything is publically available, so please contact me if you would like more information or the current status of any of these projects.</p>
+							<hr />
+							<h3 style="color:#CE9178">Post-Grad Projects</h3>
+							<div>
+								<h4>Spotify Calendar (in-progress) </h4>
+								<blockquote>This project involves using the Spotify Web API to display a history of listening patterns in a calendar-like format. The API is being used here with OAuth to get user-specific data to be displayed. I started this project primarily to learn the Spotify API and also for myself and my friends to see how our music tastes have grown with us.</blockquote>
+							</div>
+							<div>
+								<h4>Expenses Automated Calculator (in-progress)  <a target="_blank" href="https://github.com/AyushSehgal/finance_summarizer" class="icon brands fa-github"><span class="label">Github</span></a></h4>							
+								<blockquote>This is a python app that takes a bank statement pdf as input and outputs a data about spending categories and suggests more effective spending habits. I use an app for this but I needed better control over it and it was taking too long to manually tag each expense or to manually read through these bank statements so this tool makes my life easier as it automates that and reads the pdf for me.</blockquote>
+								<!-- <img src="gallery_images/fulls/01.jpg" class="project-image"/> -->
+							</div>
+							<div>
+								<h4>PC/Server Build</h4>							
+								<blockquote>After spending many years watching Linus Tech Tips videos and bitwit on Youtube, I finally made the decision to build my own desktop computer. This was a great project, I learned the ins and outs of how to set up a computer and built mine as a gaming device as well as a NAS-like server to store all my files and to use as a power machine to run large programs and to fund my interests in ML and high-performance computing.</blockquote>
+							</div>
+							<div>
+								<h4>F1 Data Analyzer (in-progress) <a target="_blank" href="https://github.com/AyushSehgal/f1_analysis" class="icon brands fa-github"><span class="label">Github</span></a></h4>							
+								<blockquote>This passion project came as a result of my anticipation of the 2023 F1 season, I wanted a way to figure out who has the chance of clinching the championship and to see how a driver's season has been going with easily producible data. I found myself doing the same calculations throughout the season so this tool helped me automate that process in a fun and easy-to-view way. I build this primarily in python as a script and use web-scraping libraries like bs4 to scrape latest data off of the F1 website.</blockquote>
+							</div>
+							<hr />
+							<h3 style="color:#CE9178">University Projects</h3>
+							<hr />
+							<h3 style="color:#CE9178">High School and Projects from Earlier</h3>
+							<hr />
 						</article>
-
-						<!-- Elements -->
-							<article id="elements">
-								<h2 class="major">Elements</h2>
-
-								<section>
-									<h3 class="major">Text</h3>
-									<p>This is <b>bold</b> and this is <strong>strong</strong>. This is <i>italic</i> and this is <em>emphasized</em>.
-									This is <sup>superscript</sup> text and this is <sub>subscript</sub> text.
-									This is <u>underlined</u> and this is code: <code>for (;;) { ... }</code>. Finally, <a href="#">this is a link</a>.</p>
-									<hr />
-									<h2>Heading Level 2</h2>
-									<h3>Heading Level 3</h3>
-									<h4>Heading Level 4</h4>
-									<h5>Heading Level 5</h5>
-									<h6>Heading Level 6</h6>
-									<hr />
-									<h4>Blockquote</h4>
-									<blockquote>Fringilla nisl. Donec accumsan interdum nisi, quis tincidunt felis sagittis eget tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan faucibus. Vestibulum ante ipsum primis in faucibus lorem ipsum dolor sit amet nullam adipiscing eu felis.</blockquote>
-									<h4>Preformatted</h4>
-									<pre><code>i = 0;
-
-while (!deck.isInOrder()) {
-    print 'Iteration ' + i;
-    deck.shuffle();
-    i++;
-}
-
-print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
-								</section>
-
-								<section>
-									<h3 class="major">Lists</h3>
-
-									<h4>Unordered</h4>
-									<ul>
-										<li>Dolor pulvinar etiam.</li>
-										<li>Sagittis adipiscing.</li>
-										<li>Felis enim feugiat.</li>
-									</ul>
-
-									<h4>Alternate</h4>
-									<ul class="alt">
-										<li>Dolor pulvinar etiam.</li>
-										<li>Sagittis adipiscing.</li>
-										<li>Felis enim feugiat.</li>
-									</ul>
-
-									<h4>Ordered</h4>
-									<ol>
-										<li>Dolor pulvinar etiam.</li>
-										<li>Etiam vel felis viverra.</li>
-										<li>Felis enim feugiat.</li>
-										<li>Dolor pulvinar etiam.</li>
-										<li>Etiam vel felis lorem.</li>
-										<li>Felis enim et feugiat.</li>
-									</ol>
-									<h4>Icons</h4>
-									<ul class="icons">
-										<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-										<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
-										<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-										<li><a href="#" class="icon brands fa-github"><span class="label">Github</span></a></li>
-									</ul>
-
-									<h4>Actions</h4>
-									<ul class="actions">
-										<li><a href="#" class="button primary">Default</a></li>
-										<li><a href="#" class="button">Default</a></li>
-									</ul>
-									<ul class="actions stacked">
-										<li><a href="#" class="button primary">Default</a></li>
-										<li><a href="#" class="button">Default</a></li>
-									</ul>
-								</section>
-
-								<section>
-									<h3 class="major">Table</h3>
-									<h4>Default</h4>
-									<div class="table-wrapper">
-										<table>
-											<thead>
-												<tr>
-													<th>Name</th>
-													<th>Description</th>
-													<th>Price</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<td>Item One</td>
-													<td>Ante turpis integer aliquet porttitor.</td>
-													<td>29.99</td>
-												</tr>
-												<tr>
-													<td>Item Two</td>
-													<td>Vis ac commodo adipiscing arcu aliquet.</td>
-													<td>19.99</td>
-												</tr>
-												<tr>
-													<td>Item Three</td>
-													<td> Morbi faucibus arcu accumsan lorem.</td>
-													<td>29.99</td>
-												</tr>
-												<tr>
-													<td>Item Four</td>
-													<td>Vitae integer tempus condimentum.</td>
-													<td>19.99</td>
-												</tr>
-												<tr>
-													<td>Item Five</td>
-													<td>Ante turpis integer aliquet porttitor.</td>
-													<td>29.99</td>
-												</tr>
-											</tbody>
-											<tfoot>
-												<tr>
-													<td colspan="2"></td>
-													<td>100.00</td>
-												</tr>
-											</tfoot>
-										</table>
-									</div>
-
-									<h4>Alternate</h4>
-									<div class="table-wrapper">
-										<table class="alt">
-											<thead>
-												<tr>
-													<th>Name</th>
-													<th>Description</th>
-													<th>Price</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<td>Item One</td>
-													<td>Ante turpis integer aliquet porttitor.</td>
-													<td>29.99</td>
-												</tr>
-												<tr>
-													<td>Item Two</td>
-													<td>Vis ac commodo adipiscing arcu aliquet.</td>
-													<td>19.99</td>
-												</tr>
-												<tr>
-													<td>Item Three</td>
-													<td> Morbi faucibus arcu accumsan lorem.</td>
-													<td>29.99</td>
-												</tr>
-												<tr>
-													<td>Item Four</td>
-													<td>Vitae integer tempus condimentum.</td>
-													<td>19.99</td>
-												</tr>
-												<tr>
-													<td>Item Five</td>
-													<td>Ante turpis integer aliquet porttitor.</td>
-													<td>29.99</td>
-												</tr>
-											</tbody>
-											<tfoot>
-												<tr>
-													<td colspan="2"></td>
-													<td>100.00</td>
-												</tr>
-											</tfoot>
-										</table>
-									</div>
-								</section>
-
-								<section>
-									<h3 class="major">Buttons</h3>
-									<ul class="actions">
-										<li><a href="#" class="button primary">Primary</a></li>
-										<li><a href="#" class="button">Default</a></li>
-									</ul>
-									<ul class="actions">
-										<li><a href="#" class="button">Default</a></li>
-										<li><a href="#" class="button small">Small</a></li>
-									</ul>
-									<ul class="actions">
-										<li><a href="#" class="button primary icon solid fa-download">Icon</a></li>
-										<li><a href="#" class="button icon solid fa-download">Icon</a></li>
-									</ul>
-									<ul class="actions">
-										<li><span class="button primary disabled">Disabled</span></li>
-										<li><span class="button disabled">Disabled</span></li>
-									</ul>
-								</section>
-
-								<section>
-									<h3 class="major">Form</h3>
-									<form method="post" action="#">
-										<div class="fields">
-											<div class="field half">
-												<label for="demo-name">Name</label>
-												<input type="text" name="demo-name" id="demo-name" value="" placeholder="Jane Doe" />
-											</div>
-											<div class="field half">
-												<label for="demo-email">Email</label>
-												<input type="email" name="demo-email" id="demo-email" value="" placeholder="jane@untitled.tld" />
-											</div>
-											<div class="field">
-												<label for="demo-category">Category</label>
-												<select name="demo-category" id="demo-category">
-													<option value="">-</option>
-													<option value="1">Manufacturing</option>
-													<option value="1">Shipping</option>
-													<option value="1">Administration</option>
-													<option value="1">Human Resources</option>
-												</select>
-											</div>
-											<div class="field half">
-												<input type="radio" id="demo-priority-low" name="demo-priority" checked>
-												<label for="demo-priority-low">Low</label>
-											</div>
-											<div class="field half">
-												<input type="radio" id="demo-priority-high" name="demo-priority">
-												<label for="demo-priority-high">High</label>
-											</div>
-											<div class="field half">
-												<input type="checkbox" id="demo-copy" name="demo-copy">
-												<label for="demo-copy">Email me a copy</label>
-											</div>
-											<div class="field half">
-												<input type="checkbox" id="demo-human" name="demo-human" checked>
-												<label for="demo-human">Not a robot</label>
-											</div>
-											<div class="field">
-												<label for="demo-message">Message</label>
-												<textarea name="demo-message" id="demo-message" placeholder="Enter your message" rows="6"></textarea>
-											</div>
-										</div>
-										<ul class="actions">
-											<li><input type="submit" value="Send Message" class="primary" /></li>
-											<li><input type="reset" value="Reset" /></li>
-										</ul>
-									</form>
-								</section>
-
-							</article>
 
 					</div>
 
