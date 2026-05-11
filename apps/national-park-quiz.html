@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Which National Park Are You? 🏞️</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #2d5016;
+    --sage: #7a9e5b;
+    --terra: #c4622d;
+    --sand: #e8d5b0;
+    --cream: #faf6ee;
+    --bark: #4a3728;
+    --sky: #7bb3c9;
+    --gold: #d4a843;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* ── SCREEN ── */
+  .screen { display: none; animation: fadeUp 0.5s ease forwards; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── INTRO ── */
+  #intro {
+    align-items: center;
+    text-align: center;
+    gap: 0;
+    padding: 40px 0;
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--terra);
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+  }
+
+  .intro-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 8vw, 64px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--forest);
+    margin-bottom: 12px;
+  }
+
+  .intro-title em {
+    font-style: italic;
+    color: var(--terra);
+  }
+
+  .intro-sub {
+    font-size: 15px;
+    color: var(--bark);
+    opacity: 0.7;
+    margin-bottom: 36px;
+    line-height: 1.6;
+    max-width: 400px;
+  }
+
+  .mountains {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 36px;
+    position: relative;
+  }
+
+  .mountains svg { width: 100%; height: auto; }
+
+  .start-btn {
+    background: var(--forest);
+    color: var(--cream);
+    border: none;
+    padding: 16px 48px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 50px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 20px rgba(45,80,22,0.25);
+  }
+
+  .start-btn:hover {
+    background: var(--terra);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(196,98,45,0.35);
+  }
+
+  /* ── QUIZ ── */
+  #quiz { gap: 24px; }
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(45,80,22,0.12);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--terra);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--bark);
+    opacity: 0.5;
+    white-space: nowrap;
+  }
+
+  .question-card {
+    background: white;
+    border-radius: 24px;
+    padding: 36px;
+    box-shadow: 0 2px 24px rgba(45,80,22,0.08), 0 0 0 1px rgba(45,80,22,0.05);
+  }
+
+  .q-emoji {
+    font-size: 32px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(20px, 4vw, 26px);
+    font-weight: 700;
+    color: var(--forest);
+    line-height: 1.3;
+    margin-bottom: 28px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 12px; }
+
+  .option {
+    background: var(--cream);
+    border: 2px solid transparent;
+    border-radius: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    font-size: 15px;
+    color: var(--bark);
+    line-height: 1.4;
+    text-align: left;
+    transition: all 0.18s ease;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .option:hover {
+    border-color: var(--sage);
+    background: #f0f5eb;
+    transform: translateX(4px);
+  }
+
+  .option.selected {
+    border-color: var(--forest);
+    background: #e8f0df;
+    color: var(--forest);
+    font-weight: 500;
+  }
+
+  .next-btn {
+    align-self: flex-end;
+    background: var(--terra);
+    color: white;
+    border: none;
+    padding: 14px 36px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s ease;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .next-btn.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .next-btn:hover {
+    background: var(--forest);
+    transform: translateY(-2px);
+  }
+
+  /* ── RESULT ── */
+  #result { gap: 28px; align-items: center; text-align: center; padding: 40px 0; }
+
+  .result-eyebrow {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--terra);
+  }
+
+  .result-park {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(40px, 10vw, 72px);
+    font-weight: 900;
+    color: var(--forest);
+    line-height: 1;
+  }
+
+  .result-emoji-big { font-size: 80px; line-height: 1; }
+
+  .result-divider {
+    width: 60px;
+    height: 3px;
+    background: var(--gold);
+    border-radius: 3px;
+  }
+
+  .result-desc {
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--bark);
+    max-width: 520px;
+  }
+
+  .birthday-note {
+    background: var(--forest);
+    color: var(--cream);
+    border-radius: 20px;
+    padding: 28px 32px;
+    font-size: 16px;
+    line-height: 1.7;
+    font-style: italic;
+    max-width: 520px;
+    position: relative;
+  }
+
+  .birthday-note::before {
+    content: '"';
+    font-family: 'Playfair Display', serif;
+    font-size: 80px;
+    color: var(--sage);
+    position: absolute;
+    top: -16px;
+    left: 20px;
+    line-height: 1;
+  }
+
+  .retry-btn {
+    background: transparent;
+    border: 2px solid var(--forest);
+    color: var(--forest);
+    padding: 12px 32px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s ease;
+  }
+
+  .retry-btn:hover {
+    background: var(--forest);
+    color: var(--cream);
+  }
+
+  /* decorative dots */
+  .dots {
+    position: fixed;
+    top: 0; right: 0;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle at 80% 20%, rgba(122,158,91,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .dots2 {
+    position: fixed;
+    bottom: 0; left: 0;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle at 20% 80%, rgba(196,98,45,0.1) 0%, transparent 60%);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div class="dots"></div>
+<div class="dots2"></div>
+
+<div class="app">
+
+  <!-- INTRO -->
+  <div class="screen active" id="intro">
+    <span class="badge">🎂 Happy Birthday Shaina</span>
+    <h1 class="intro-title">Which National<br>Park Are <em>You?</em></h1>
+    <p class="intro-sub">10 questions. 4 parks. One very scientific result. Made with love for your birthday 🐾</p>
+    <div class="mountains">
+      <svg viewBox="0 0 500 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 200 L80 80 L160 140 L240 40 L320 120 L400 60 L500 160 L500 200 Z" fill="#2d5016" opacity="0.15"/>
+        <path d="M0 200 L60 110 L130 160 L210 70 L290 130 L370 50 L450 140 L500 100 L500 200 Z" fill="#7a9e5b" opacity="0.2"/>
+        <path d="M0 200 L40 150 L100 180 L180 120 L260 160 L340 100 L420 160 L500 130 L500 200 Z" fill="#c4622d" opacity="0.12"/>
+        <!-- trees -->
+        <g fill="#2d5016" opacity="0.4">
+          <polygon points="30,180 40,155 50,180"/>
+          <polygon points="460,175 470,150 480,175"/>
+          <polygon points="200,185 210,162 220,185"/>
+          <polygon points="350,182 360,158 370,182"/>
+        </g>
+        <!-- sun -->
+        <circle cx="420" cy="50" r="22" fill="#d4a843" opacity="0.3"/>
+        <!-- stars -->
+        <circle cx="100" cy="30" r="2" fill="#d4a843" opacity="0.5"/>
+        <circle cx="300" cy="20" r="1.5" fill="#d4a843" opacity="0.4"/>
+        <circle cx="200" cy="45" r="1" fill="#d4a843" opacity="0.3"/>
+      </svg>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">Take the Quiz ✨</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="screen" id="quiz">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-label" id="progressLabel">1 / 10</span>
+    </div>
+    <div class="question-card">
+      <span class="q-emoji" id="qEmoji"></span>
+      <p class="q-text" id="qText"></p>
+      <div class="options" id="options"></div>
+    </div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="result">
+    <p class="result-eyebrow">You are...</p>
+    <div class="result-emoji-big" id="resultEmoji"></div>
+    <h2 class="result-park" id="resultPark"></h2>
+    <div class="result-divider"></div>
+    <p class="result-desc" id="resultDesc"></p>
+    <div class="birthday-note" id="birthdayNote"></div>
+    <button class="retry-btn" onclick="restart()">🔄 Retake the Quiz</button>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    emoji: "☀️",
+    text: "It's Saturday morning. What are you doing?",
+    options: [
+      "Making a full breakfast and dancing around the kitchen in my PJs 💃",
+      "Already texting the group chat \"what's the plan today??\"",
+      "On a walk with Romeo, living my best life 🐾",
+      "Sleeping in — I was the last one to leave last night"
+    ],
+    scores: ["Y","Z","Yo","G"]
+  },
+  {
+    emoji: "🪨",
+    text: "You spot a big rock on a hike. What do you do?",
+    options: [
+      "Hop on it immediately — no hesitation, full send",
+      "Assess the rock, plan the jump, THEN hop on it",
+      "Ask someone to take a photo of you on it",
+      "Keep walking, I'm here for the views not the rocks"
+    ],
+    scores: ["Z","Yo","Y","G"]
+  },
+  {
+    emoji: "🎵",
+    text: "A new song comes on at a party. You:",
+    options: [
+      "Immediately grab someone's hand and pull them to the dance floor",
+      "Nod your head and mouth the words first, then ease into it",
+      "You were ALREADY on the dance floor, where have you been?",
+      "Rate it a 3/10 and request something better"
+    ],
+    scores: ["Y","G","Z","Yo"]
+  },
+  {
+    emoji: "🤗",
+    text: "Your friend is having a rough day. You:",
+    options: [
+      "Show up at their door unannounced with snacks and a hug",
+      "Send them a 3-paragraph voice note of encouragement",
+      "Make them laugh until they forget what was wrong",
+      "Organize a whole girls night to cheer them up"
+    ],
+    scores: ["Yo","G","Z","Y"]
+  },
+  {
+    emoji: "🐶",
+    text: "What is Romeo doing right now?",
+    options: [
+      "Cuddled next to me, living like royalty 👑",
+      "Zoomies. Just full zoomies.",
+      "Staring at me like I owe him something",
+      "Honestly who knows, he does what he wants"
+    ],
+    scores: ["G","Z","Yo","Y"]
+  },
+  {
+    emoji: "🌅",
+    text: "Pick your ideal nature moment:",
+    options: [
+      "Standing at the edge of a canyon at golden hour, jaw dropped",
+      "Jumping between rocks next to a rushing river",
+      "Dancing in a field of wildflowers because why not",
+      "Hot spring. Sitting. Doing absolutely nothing. Bliss."
+    ],
+    scores: ["G","Z","Y","Yo"]
+  },
+  {
+    emoji: "💬",
+    text: "How do your friends describe you?",
+    options: [
+      "\"She's the life of the party AND checks in on everyone the next day\"",
+      "\"Unpredictable but in the best way possible\"",
+      "\"Chaotic good. Full chaotic good.\"",
+      "\"She's weird but like… the fun kind of weird\""
+    ],
+    scores: ["Yo","G","Z","Y"]
+  },
+  {
+    emoji: "✈️",
+    text: "What's your go-to move on a girls trip?",
+    options: [
+      "Finding the best local spot nobody knows about",
+      "Suggesting something slightly unhinged that ends up being the best memory",
+      "Making sure everyone is having the best time, even if it means sacrificing the plan",
+      "Being the one everyone looks back on and says \"that was YOUR idea\" 😂"
+    ],
+    scores: ["G","Z","Yo","Y"]
+  },
+  {
+    emoji: "💃",
+    text: "Pick a dance move:",
+    options: [
+      "Smooth, flowy, full of feeling 🌊",
+      "High energy, jumping involved, zero self-consciousness",
+      "Whatever the moment calls for — you're versatile",
+      "The one that makes everyone lose it laughing"
+    ],
+    scores: ["Yo","Z","G","Y"]
+  },
+  {
+    emoji: "🌟",
+    text: "What does a perfect day with your people look like?",
+    options: [
+      "Adventure all day, dancing all night, Romeo gets a treat 🐾",
+      "Somewhere in nature doing something slightly chaotic with your favorite humans",
+      "Doesn't matter where — just that everyone feels loved and has the best time",
+      "All of the above, obviously"
+    ],
+    scores: ["Y","Z","Yo","G"]
+  }
+];
+
+const results = {
+  Y: {
+    emoji: "🌋",
+    park: "Yellowstone",
+    desc: "Iconic, warm, full of life and always surprising. Like Yellowstone, you're one of a kind — there's genuinely nobody else like you. You bring the energy AND the heart everywhere you go, and people are always better for being around you. Also you'd absolutely dance next to a geyser and we respect it.",
+    note: "No matter which park you got — you're the rare kind of person who makes everyone around her feel like they're exactly where they're supposed to be. The world is so lucky to have you in it. Happy Birthday Shaina!! 🎂🐾💃"
+  },
+  Z: {
+    emoji: "🏜️",
+    park: "Zion",
+    desc: "Bold, beautiful, and always up for something adventurous. You're the friend who hops on the rock first and asks questions later. Zion is dramatic in the best way — and so are you (that's a compliment). You make every moment feel like a movie scene.",
+    note: "No matter which park you got — you're the rare kind of person who makes everyone around her feel like they're exactly where they're supposed to be. The world is so lucky to have you in it. Happy Birthday Shaina!! 🎂🐾💃"
+  },
+  Yo: {
+    emoji: "🌲",
+    park: "Yosemite",
+    desc: "Timeless, joyful, and absolutely everyone's favorite. Yosemite is the park people return to again and again — because it always makes them feel something. That's you. You're the friend people never stop choosing, because being around you just feels good.",
+    note: "No matter which park you got — you're the rare kind of person who makes everyone around her feel like they're exactly where they're supposed to be. The world is so lucky to have you in it. Happy Birthday Shaina!! 🎂🐾💃"
+  },
+  G: {
+    emoji: "🌄",
+    park: "Grand Canyon",
+    desc: "Vast, stunning, and low-key one of the most underrated wonders of the world. You're effortlessly cool but secretly a softie. You don't try too hard — you just are that girl. Also you give the best advice and people don't always tell you that enough.",
+    note: "No matter which park you got — you're the rare kind of person who makes everyone around her feel like they're exactly where they're supposed to be. The world is so lucky to have you in it. Happy Birthday Shaina!! 🎂🐾💃"
+  }
+};
+
+let current = 0;
+let scores = { Y: 0, Z: 0, Yo: 0, G: 0 };
+let selected = null;
+
+function startQuiz() {
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  const el = document.getElementById(id);
+  el.style.display = 'flex';
+  // force reflow for animation
+  void el.offsetWidth;
+  el.classList.add('active');
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  document.getElementById('qEmoji').textContent = q.emoji;
+  document.getElementById('qText').textContent = q.text;
+  document.getElementById('progressFill').style.width = ((current / 10) * 100) + '%';
+  document.getElementById('progressLabel').textContent = (current + 1) + ' / 10';
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.options.forEach((o, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.textContent = o;
+    btn.onclick = () => selectOption(i, btn);
+    opts.appendChild(btn);
+  });
+
+  selected = null;
+  document.getElementById('nextBtn').classList.remove('visible');
+}
+
+function selectOption(i, btn) {
+  document.querySelectorAll('.option').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selected = i;
+  document.getElementById('nextBtn').classList.add('visible');
+}
+
+function nextQuestion() {
+  if (selected === null) return;
+  const park = questions[current].scores[selected];
+  scores[park]++;
+  current++;
+  if (current < questions.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  const winner = Object.entries(scores).sort((a,b) => b[1]-a[1])[0][0];
+  const r = results[winner];
+  document.getElementById('resultEmoji').textContent = r.emoji;
+  document.getElementById('resultPark').textContent = r.park;
+  document.getElementById('resultDesc').textContent = r.desc;
+  document.getElementById('birthdayNote').textContent = r.note;
+  showScreen('result');
+  document.getElementById('progressFill').style.width = '100%';
+}
+
+function restart() {
+  current = 0;
+  scores = { Y: 0, Z: 0, Yo: 0, G: 0 };
+  selected = null;
+  showScreen('intro');
+}
+</script>
+</body>
+</html>
