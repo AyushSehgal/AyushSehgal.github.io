@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Dikita's Secret Mission</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0d0407;
+            --surface: #1c0a10;
+            --card: #251018;
+            --gold: #c9a84c;
+            --gold-light: #e8c96e;
+            --cream: #f0e4d4;
+            --cream-muted: #b89a7a;
+            --red: #8b1a2e;
+            --red-bright: #c0392b;
+            --text: #e0d4c8;
+            --text-muted: #8e7868;
+            --border: rgba(201, 168, 76, 0.2);
+            --shadow: 0 24px 64px rgba(0,0,0,0.6);
+        }
+
+        html, body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
+            font-weight: 300;
+            line-height: 1.7;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 15% 25%, rgba(139,26,46,0.18) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 75%, rgba(201,168,76,0.07) 0%, transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #confetti-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem 1rem;
+        }
+
+        .stage {
+            display: none;
+            width: 100%;
+            max-width: 560px;
+        }
+        .stage.active {
+            display: block;
+            animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 5vw, 2.3rem);
+            line-height: 1.2;
+            color: var(--cream);
+            margin-bottom: 0.4rem;
+        }
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.25rem, 4vw, 1.6rem);
+            color: var(--gold-light);
+            margin-bottom: 0.8rem;
+        }
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            color: var(--cream);
+            margin-bottom: 0.8rem;
+        }
+        p { color: var(--text); margin-bottom: 0.75rem; font-size: 0.93rem; }
+        .muted { color: var(--text-muted); font-size: 0.82rem; }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 1.4rem 0;
+        }
+
+        .stamp {
+            display: inline-block;
+            border: 2.5px solid var(--red-bright);
+            color: var(--red-bright);
+            font-family: 'Playfair Display', serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            padding: 0.35rem 0.9rem;
+            transform: rotate(-3deg);
+            text-transform: uppercase;
+            margin-bottom: 1.4rem;
+            opacity: 0.88;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--gold);
+            color: #120408;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            padding: 0.28rem 0.75rem;
+            border-radius: 100px;
+            text-transform: uppercase;
+            margin-bottom: 0.9rem;
+        }
+
+        .mission-field {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 0.45rem 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.08);
+            font-size: 0.85rem;
+        }
+        .mission-field .label { color: var(--text-muted); }
+        .mission-field .value { color: var(--cream); font-weight: 500; }
+
+        .checklist { list-style: none; margin: 0.8rem 0; }
+        .checklist li {
+            padding: 0.28rem 0;
+            font-size: 0.88rem;
+            color: var(--cream-muted);
+        }
+        .checklist li::before { content: '✓  '; color: var(--gold); }
+
+        .btn {
+            display: inline-block;
+            background: var(--gold);
+            color: #120408;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.88rem;
+            letter-spacing: 0.06em;
+            padding: 0.85rem 1.8rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .btn:hover {
+            background: var(--gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(201,168,76,0.35);
+        }
+        .btn:active { transform: translateY(0); }
+
+        .btn-full {
+            width: 100%;
+            text-align: center;
+            font-size: 0.95rem;
+            padding: 1rem 2rem;
+        }
+
+        .btn-blessing {
+            width: 100%;
+            text-align: center;
+            font-size: 1rem;
+            padding: 1.1rem 2rem;
+            background: linear-gradient(135deg, #b83030, #7a1222);
+            color: #fff;
+            border-radius: 12px;
+            letter-spacing: 0.03em;
+            box-shadow: 0 8px 32px rgba(184,48,48,0.4);
+        }
+        .btn-blessing:hover {
+            background: linear-gradient(135deg, #d44040, #9a1828);
+            transform: translateY(-3px);
+            box-shadow: 0 14px 40px rgba(184,48,48,0.5);
+        }
+
+        .course-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+
+        .progress {
+            display: flex;
+            gap: 0.55rem;
+            justify-content: center;
+            margin-bottom: 1.6rem;
+        }
+        .progress-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(201,168,76,0.15);
+            border: 1px solid rgba(201,168,76,0.3);
+            transition: all 0.35s;
+        }
+        .progress-dot.active  { background: var(--gold); border-color: var(--gold); }
+        .progress-dot.done    { background: rgba(201,168,76,0.45); border-color: var(--gold); }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            margin: 1.3rem 0;
+        }
+        .option {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.85rem 1.1rem;
+            cursor: pointer;
+            transition: all 0.18s;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 300;
+            color: var(--text);
+            text-align: left;
+            width: 100%;
+            line-height: 1.5;
+        }
+        .option:hover:not(:disabled) {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.08);
+            transform: translateX(4px);
+        }
+        .option.selected {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.13);
+            color: var(--cream);
+        }
+        .option.correct {
+            border-color: #2ecc71 !important;
+            background: rgba(46,204,113,0.12) !important;
+            color: #2ecc71 !important;
+            opacity: 1 !important;
+        }
+        .option.wrong {
+            border-color: rgba(231,76,60,0.5) !important;
+            background: rgba(231,76,60,0.1) !important;
+            color: rgba(231,76,60,0.7) !important;
+        }
+        .option:disabled { cursor: default; }
+
+        .response-box {
+            display: none;
+            background: rgba(201,168,76,0.08);
+            border: 1px solid rgba(201,168,76,0.28);
+            border-radius: 10px;
+            padding: 0.9rem 1.1rem;
+            margin-top: 0.9rem;
+            font-size: 0.87rem;
+            color: var(--gold-light);
+            font-style: italic;
+            line-height: 1.6;
+        }
+        .response-box.visible { display: block; animation: fadeUp 0.35s ease forwards; }
+
+        .reveal-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.97rem;
+            line-height: 2;
+            color: var(--cream);
+        }
+        .reveal-text em { color: var(--gold-light); font-style: italic; }
+
+        .heart-big {
+            font-size: 3.5rem;
+            text-align: center;
+            display: block;
+            margin: 0.8rem 0;
+            animation: heartbeat 1.3s ease-in-out infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(1.12); }
+        }
+
+        .small-link {
+            display: block;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.76rem;
+            margin-top: 0.7rem;
+            cursor: pointer;
+            text-decoration: underline;
+            line-height: 1.5;
+        }
+        .small-link:hover { color: var(--cream); }
+
+        .emoji-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 2.6rem;
+            margin: 0.5rem 0 1rem;
+        }
+
+        .ps-box {
+            margin-top: 1.5rem;
+            padding: 1rem 1.2rem;
+            background: rgba(255,255,255,0.025);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .ps-box p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.45rem; }
+        .ps-box p:last-child { margin-bottom: 0; }
+        .ps-box strong { color: var(--cream-muted); }
+
+        .blessing-question {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: var(--gold-light);
+            line-height: 1.7;
+            margin: 1.4rem 0;
+        }
+
+        .from-line {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--cream);
+            line-height: 1.8;
+        }
+
+        /* ---- TINDER STYLES ---- */
+        .tinder-pair {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 0.6rem;
+            margin: 1rem 0;
+        }
+
+        .tinder-card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 1.4rem 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.55rem;
+            width: 100%;
+            min-height: 120px;
+            justify-content: center;
+        }
+        .tinder-card:hover:not(:disabled) {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.08);
+            transform: scale(1.04);
+        }
+        .tinder-card.chosen {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.15);
+        }
+        .tinder-card.rejected {
+            opacity: 0.22;
+            transform: scale(0.97);
+        }
+        .tinder-card .t-emoji { font-size: 2.5rem; line-height: 1.1; display: block; }
+        .tinder-card .t-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--cream-muted);
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tinder-vs {
+            font-size: 0.68rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* ---- PLATE PREVIEW ---- */
+        .plate-preview {
+            display: flex;
+            justify-content: center;
+            gap: 0.6rem;
+            margin: 0.6rem 0 0.2rem;
+            min-height: 3rem;
+            align-items: center;
+        }
+
+        .plate-slot {
+            width: 3rem; height: 3rem;
+            border-radius: 50%;
+            border: 1.5px dashed rgba(201,168,76,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0;
+            flex-shrink: 0;
+        }
+
+        .plate-slot.filled {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.12);
+            font-size: 1.5rem;
+            animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); }
+            to   { transform: scale(1); }
+        }
+
+        .pair-counter {
+            text-align: center;
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.2rem;
+        }
+
+        /* ---- COURSE PROGRESS ---- */
+        .course-progress {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .cp-badge {
+            font-size: 0.68rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 0.28rem 0.65rem;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 100px;
+        }
+        .cp-badge.active {
+            background: rgba(201,168,76,0.12);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .cp-badge.done {
+            border-color: rgba(201,168,76,0.3);
+            color: rgba(201,168,76,0.45);
+        }
+        .cp-sep { color: var(--text-muted); font-size: 0.6rem; }
+
+        /* ---- MATCH REVEAL ---- */
+        .match-plates {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 0.75rem;
+            align-items: start;
+            margin: 1rem 0;
+        }
+        .match-person { text-align: center; }
+        .match-person h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.6rem;
+            font-weight: 600;
+        }
+        .match-emoji-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .match-plus {
+            font-size: 1.3rem;
+            color: var(--gold);
+            align-self: center;
+            text-align: center;
+            padding-top: 1.4rem;
+        }
+
+        /* ---- DRAWING CANVAS ---- */
+        .draw-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-bottom: 0.7rem;
+            flex-wrap: wrap;
+        }
+        .color-swatch {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .color-swatch.active { border-color: var(--cream); transform: scale(1.25); }
+        .draw-sep {
+            width: 1px; height: 18px;
+            background: var(--border);
+            margin: 0 0.1rem;
+            flex-shrink: 0;
+        }
+        .draw-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.28rem 0.6rem;
+            font-size: 0.75rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .draw-btn.active, .draw-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(201,168,76,0.1);
+        }
+        #draw-canvas {
+            width: 100%;
+            border-radius: 10px;
+            cursor: crosshair;
+            display: block;
+            border: 1px solid var(--border);
+            touch-action: none;
+        }
+        .draw-actions {
+            display: flex;
+            gap: 0.6rem;
+            margin-top: 0.7rem;
+        }
+        .draw-actions .draw-btn { flex: 1; text-align: center; padding: 0.55rem; font-size: 0.82rem; }
+
+        /* ---- PASSWORD GATE ---- */
+        #password-gate {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(8px);
+        }
+        #password-gate.hidden { display: none; }
+        .password-gate-content {
+            text-align: center;
+            max-width: 380px;
+            padding: 2rem;
+        }
+        .password-gate-emoji {
+            font-size: 4rem;
+            margin-bottom: 1.2rem;
+            display: block;
+            animation: float 5s ease-in-out infinite;
+        }
+        .password-gate-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            margin-bottom: 0.8rem;
+            color: var(--cream);
+        }
+        .password-gate-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.6rem;
+            line-height: 1.6;
+        }
+        .password-gate-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .password-gate-input {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            text-align: center;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+        .password-gate-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: rgba(201, 168, 76, 0.08);
+            box-shadow: 0 0 12px rgba(201, 168, 76, 0.2);
+        }
+        .password-gate-input.shake {
+            animation: shake 0.4s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        .password-gate-btn {
+            background: linear-gradient(135deg, #c9a84c, #e8c96e);
+            border: none;
+            border-radius: 10px;
+            color: #1a1a1a;
+            padding: 0.85rem 1.2rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            letter-spacing: 0.03em;
+        }
+        .password-gate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(201, 168, 76, 0.35);
+        }
+        .password-gate-btn:active {
+            transform: translateY(0);
+        }
+        .password-gate-error {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: 0.6rem;
+            min-height: 1.2rem;
+            display: none;
+        }
+        .password-gate-error.show { display: block; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="password-gate">
+    <div class="password-gate-content">
+        <span class="password-gate-emoji">🔐</span>
+        <h1 class="password-gate-title">Access Required</h1>
+        <p class="password-gate-subtitle">This mission is classified. Enter the secret password to proceed.</p>
+        <form class="password-gate-form" onsubmit="checkPassword(event)">
+            <input
+                type="password"
+                id="password-input"
+                class="password-gate-input"
+                placeholder="Enter password..."
+                autofocus
+            />
+            <button type="submit" class="password-gate-btn">Unlock ✦</button>
+            <div class="password-gate-error" id="password-error">Incorrect password. Try again.</div>
+        </form>
+    </div>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div class="container">
+
+    <!-- ===== STAGE 0: CLASSIFIED ===== -->
+    <div id="stage-0" class="stage active">
+        <div class="card">
+            <div class="stamp">⚠ Classified ⚠</div>
+            <div class="badge">Top Secret · Best Friend Eyes Only</div>
+
+            <h1>Mission Dossier</h1>
+            <p class="muted" style="margin-bottom:1.4rem;">Intercepted · Do Not Forward · Burn After Reading (Don't Actually)</p>
+
+            <div class="divider"></div>
+
+            <div class="mission-field">
+                <span class="label">TO:</span>
+                <span class="value">Agent Dikita 🕵️‍♀️</span>
+            </div>
+            <div class="mission-field">
+                <span class="label">FROM:</span>
+                <span class="value">Some dude you know</span>
+            </div>
+            <div class="mission-field">
+                <span class="label">RE:</span>
+                <span class="value">Operation Shaina 💍</span>
+            </div>
+            <div class="mission-field">
+                <span class="label">CLEARANCE LEVEL:</span>
+                <span class="value">Best Friend · Maximum</span>
+            </div>
+            <div class="mission-field">
+                <span class="label">ESTIMATED DURATION:</span>
+                <span class="value">5 mins · Life-changing</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <p>You have been hand-selected for this mission based on your exceptional qualifications:</p>
+
+            <ul class="checklist">
+                <li>World-renowned restaurant explorer &amp; critic</li>
+                <li>Shaina's ride-or-die since the beginning of time</li>
+                <li>Excellent taste — in restaurants <em>and</em> in people</li>
+                <li>Proven ability to keep very important secrets</li>
+                <li>Responds to "Dikita" without any complaints (impressive)</li>
+            </ul>
+
+            <p style="margin-top:1rem;">
+                You will not be graded. There are no wrong answers. (Well, kind of)
+            </p>
+            <p class="muted">No restaurants were harmed in the making of this mission.</p>
+
+            <div class="divider"></div>
+
+            <button class="btn btn-full" onclick="goToStage(1)">Accept Mission →</button>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 1: QUIZ Q1 — Where they met ===== -->
+    <div id="stage-1" class="stage">
+        <div class="progress">
+            <div class="progress-dot active"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+        </div>
+        <div class="card">
+            <div class="badge">🔍 Intel Verification · 1 of 5</div>
+            <h2>Prove You Know Them</h2>
+            <p>Credentials on hold. First, verify your intel.</p>
+
+            <div class="divider"></div>
+
+            <h3>Question 1</h3>
+            <p style="font-size:0.97rem; color:var(--cream);">
+                Where did Ayush and Shaina first meet?
+            </p>
+
+            <div class="options" id="quiz-opts-1">
+                <button class="option" onclick="selectQuiz(1,0,this)">Imm Thai</button>
+                <button class="option" onclick="selectQuiz(1,1,this)">Sitara Bellam's Silent Disco Event</button>
+                <button class="option" onclick="selectQuiz(1,2,this)">Bollywood Berkeley</button>
+                <button class="option" onclick="selectQuiz(1,3,this)">Hawaii</button>
+            </div>
+
+            <button class="btn" id="quiz-next-1" style="display:none; margin-top:1rem;" onclick="goToStage(2)">Next Question →</button>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 2: QUIZ Q2 — How he asked her out ===== -->
+    <div id="stage-2" class="stage">
+        <div class="progress">
+            <div class="progress-dot done"></div>
+            <div class="progress-dot active"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+        </div>
+        <div class="card">
+            <div class="badge">🔍 Intel Verification · 2 of 5</div>
+            <h2>Keep Going</h2>
+            <p>One down. Four to go.</p>
+
+            <div class="divider"></div>
+
+            <h3>Question 2</h3>
+            <p style="font-size:0.97rem; color:var(--cream);">
+                How did Ayush originally ask Shaina out?
+            </p>
+
+            <div class="options" id="quiz-opts-2">
+                <button class="option" onclick="selectQuiz(2,0,this)">Handwritten letter</button>
+                <button class="option" onclick="selectQuiz(2,1,this)">Through a mutual friend</button>
+                <button class="option" onclick="selectQuiz(2,2,this)">A QR code</button>
+                <button class="option" onclick="selectQuiz(2,3,this)">Slid into the DMs</button>
+            </div>
+
+            <button class="btn" id="quiz-next-2" style="display:none; margin-top:1rem;" onclick="goToStage(3)">Next Question →</button>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 3: QUIZ Q3 — Who delivered the QR code ===== -->
+    <div id="stage-3" class="stage">
+        <div class="progress">
+            <div class="progress-dot done"></div>
+            <div class="progress-dot done"></div>
+            <div class="progress-dot active"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+        </div>
+        <div class="card">
+            <div class="badge">🔍 Intel Verification · 3 of 5</div>
+            <h2>Keep Going</h2>
+            <p>Two down. Three to go.</p>
+
+            <div class="divider"></div>
+
+            <h3>Question 3</h3>
+            <p style="font-size:0.97rem; color:var(--cream);">
+                Who delivered the QR Code to Shaina?
+            </p>
+
+            <div class="options" id="quiz-opts-3">
+                <button class="option" onclick="selectQuiz(3,0,this)">Pond</button>
+                <button class="option" onclick="selectQuiz(3,1,this)">Gavin</button>
+                <button class="option" onclick="selectQuiz(3,2,this)">Shrey</button>
+                <button class="option" onclick="selectQuiz(3,3,this)">Fourth</button>
+            </div>
+
+            <button class="btn" id="quiz-next-3" style="display:none; margin-top:1rem;" onclick="goToStage('3b')">Next Question →</button>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 3b: QUIZ Q4 — Where Ayush met Dikita ===== -->
+    <div id="stage-3b" class="stage">
+        <div class="progress">
+            <div class="progress-dot done"></div>
+            <div class="progress-dot done"></div>
+            <div class="progress-dot done"></div>
+            <div class="progress-dot active"></div>
+            <div class="progress-dot"></div>
+        </div>
+        <div class="card">
+            <div class="badge">🔍 Intel Verification · 4 of 5</div>
+            <h2>Almost There</h2>
+            <p>Four down. One to go.</p>
+
+            <div class="divider"></div>
+
+            <h3>Question 4</h3>
+            <p style="font-size:0.97rem; color:var(--cream);">
+                Where did Ayush meet Dikita for the first time?
+            </p>
+
+            <div class="options" id="quiz-opts-3b">
+                <button class="option" onclick="selectQuiz('3b',0,this)">The Glade</button>
+                <button class="option" onclick="selectQuiz('3b',1,this)">U-Dessert Story</button>
+                <button class="option" onclick="selectQuiz('3b',2,this)">Main Stacks</button>
+                <button class="option" onclick="selectQuiz('3b',3,this)">In a lecture hall</button>
+            </div>
+
+            <button class="btn" id="quiz-next-3b" style="display:none; margin-top:1rem;" onclick="goToStage('3c')">Next Question →</button>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 3c: QUIZ Q5 — What noise dominated the first meeting ===== -->
+    <div id="stage-3c" class="stage">
+        <div class="progress">
+            <div class="progress-dot done"></div>
+            <div class="progress-dot done"></div>
+            <div class="progress-dot done"></div>
+            <div class="progress-dot done"></div>
+            <div class="progress-dot active"></div>
+        </div>
+        <div class="card">
+            <div class="badge">🔍 Intel Verification · 5 of 5</div>
+            <h2>Last One</h2>
+            <p>Almost cleared. One more check.</p>
+
+            <div class="divider"></div>
+
+            <h3>Question 5</h3>
+            <p style="font-size:0.97rem; color:var(--cream);">
+                What noise dominated that first meeting?
+            </p>
+
+            <div class="options" id="quiz-opts-3c">
+                <button class="option" onclick="selectQuiz('3c',0,this)">Shaina's grumbling stomach</button>
+                <button class="option" onclick="selectQuiz('3c',1,this)">Dikita chewing</button>
+                <button class="option" onclick="selectQuiz('3c',2,this)">Ayush's laugh</button>
+                <button class="option" onclick="selectQuiz('3c',3,this)">People being weird in Main Stacks</button>
+            </div>
+
+            <button class="btn" id="quiz-next-3c" style="display:none; margin-top:1rem;" onclick="goToStage(4)">Intel Verified. Continue →</button>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 4: FIELD KNOWLEDGE — Shaina tangent question ===== -->
+    <div id="stage-4" class="stage">
+        <div class="card">
+            <div class="course-label">🍝 Course Two · The Main Course</div>
+            <h2>Field Knowledge Test</h2>
+            <p>Credentials: <strong style="color:var(--gold)">Verified.</strong> Now for the harder part — how well do you know your co-conspirator?</p>
+
+            <div class="divider"></div>
+
+            <h3>One More Question</h3>
+            <p style="font-size:0.97rem; color:var(--cream);">
+                You're catching up with Shaina over a meal. She starts telling a story. Halfway through, she goes on a full 15-minute tangent about something completely unrelated. You:
+            </p>
+
+            <div class="options" id="options-4">
+                <button class="option" onclick="selectOption(4,'A',this)">
+                    😂 Let her go because the tangent is honestly better than the original story
+                </button>
+                <button class="option" onclick="selectOption(4,'B',this)">
+                    🤝 Match her energy and launch your own tangent.
+                </button>
+                <button class="option" onclick="selectOption(4,'C',this)">
+                    💕 Listen to every word because its probably a banger
+                </button>
+                <button class="option" onclick="selectOption(4,'D',this)">
+                    🤷‍♀️ By the end, neither of you remember what the original story was. Perfect.
+                </button>
+            </div>
+
+            <button class="btn" id="next-4" style="display:none; margin-top:1rem;" onclick="goToStage(5)">Build Her Plate →</button>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 5: SHAINA BREAKFAST ===== -->
+    <div id="stage-5" class="stage">
+        <div class="course-progress">
+            <span class="cp-badge active">🍳 Breakfast</span>
+            <span class="cp-sep">·</span>
+            <span class="cp-badge">🍝 Main</span>
+            <span class="cp-sep">·</span>
+            <span class="cp-badge">🍫 Dessert</span>
+        </div>
+        <div class="card">
+            <div class="course-label">🌸 Shaina's Plate</div>
+            <h2>If she was a breakfast...</h2>
+            <p>What would be on her plate? Pick one from each pair.</p>
+
+            <div class="plate-preview" id="t5-plate"></div>
+
+            <div class="divider"></div>
+
+            <p class="pair-counter" id="t5-counter"></p>
+
+            <div class="tinder-pair" id="t5-pair">
+                <button class="tinder-card" id="t5-card-a" onclick="tinderPick(5,'a')">
+                    <span class="t-emoji" id="t5-emoji-a"></span>
+                    <span class="t-label" id="t5-label-a"></span>
+                </button>
+                <div class="tinder-vs">or</div>
+                <button class="tinder-card" id="t5-card-b" onclick="tinderPick(5,'b')">
+                    <span class="t-emoji" id="t5-emoji-b"></span>
+                    <span class="t-label" id="t5-label-b"></span>
+                </button>
+            </div>
+
+            <div id="t5-done" style="display:none;">
+                <button class="btn btn-full" style="margin-top:1rem;" onclick="goToStage(6)">Main Course →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 6: SHAINA MAIN COURSE ===== -->
+    <div id="stage-6" class="stage">
+        <div class="course-progress">
+            <span class="cp-badge done">🍳 Breakfast</span>
+            <span class="cp-sep">·</span>
+            <span class="cp-badge active">🍝 Main</span>
+            <span class="cp-sep">·</span>
+            <span class="cp-badge">🍫 Dessert</span>
+        </div>
+        <div class="card">
+            <div class="course-label">🌸 Shaina's Plate</div>
+            <h2>If she was a main course...</h2>
+            <p>Keep building. Pick one from each pair.</p>
+
+            <div class="plate-preview" id="t6-plate"></div>
+
+            <div class="divider"></div>
+
+            <p class="pair-counter" id="t6-counter"></p>
+
+            <div class="tinder-pair" id="t6-pair">
+                <button class="tinder-card" id="t6-card-a" onclick="tinderPick(6,'a')">
+                    <span class="t-emoji" id="t6-emoji-a"></span>
+                    <span class="t-label" id="t6-label-a"></span>
+                </button>
+                <div class="tinder-vs">or</div>
+                <button class="tinder-card" id="t6-card-b" onclick="tinderPick(6,'b')">
+                    <span class="t-emoji" id="t6-emoji-b"></span>
+                    <span class="t-label" id="t6-label-b"></span>
+                </button>
+            </div>
+
+            <div id="t6-done" style="display:none;">
+                <button class="btn btn-full" style="margin-top:1rem;" onclick="goToStage(7)">Dessert →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 7: SHAINA DESSERT ===== -->
+    <div id="stage-7" class="stage">
+        <div class="course-progress">
+            <span class="cp-badge done">🍳 Breakfast</span>
+            <span class="cp-sep">·</span>
+            <span class="cp-badge done">🍝 Main</span>
+            <span class="cp-sep">·</span>
+            <span class="cp-badge active">🍫 Dessert</span>
+        </div>
+        <div class="card">
+            <div class="course-label">🌸 Shaina's Plate</div>
+            <h2>If she was a dessert...</h2>
+            <p>The sweet ending. What is she?</p>
+
+            <div class="plate-preview" id="t7-plate"></div>
+
+            <div class="divider"></div>
+
+            <p class="pair-counter" id="t7-counter"></p>
+
+            <div class="tinder-pair" id="t7-pair">
+                <button class="tinder-card" id="t7-card-a" onclick="tinderPick(7,'a')">
+                    <span class="t-emoji" id="t7-emoji-a"></span>
+                    <span class="t-label" id="t7-label-a"></span>
+                </button>
+                <div class="tinder-vs">or</div>
+                <button class="tinder-card" id="t7-card-b" onclick="tinderPick(7,'b')">
+                    <span class="t-emoji" id="t7-emoji-b"></span>
+                    <span class="t-label" id="t7-label-b"></span>
+                </button>
+            </div>
+
+            <div id="t7-done" style="display:none;">
+                <button class="btn btn-full" style="margin-top:1rem;" onclick="goToStage(8)">Now for Ayush... →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 8: AYUSH BREAKFAST ===== -->
+    <div id="stage-8" class="stage">
+        <div class="course-progress">
+            <span class="cp-badge active">🍳 Breakfast</span>
+            <span class="cp-sep">·</span>
+            <span class="cp-badge">🍝 Main</span>
+            <span class="cp-sep">·</span>
+            <span class="cp-badge">🍫 Dessert</span>
+        </div>
+        <div class="card">
+            <div class="course-label">🎯 Ayush's Plate</div>
+            <h2>If he was a breakfast...</h2>
+            <p>Same assignment. The other half of this equation.</p>
+
+            <div class="plate-preview" id="t8-plate"></div>
+
+            <div class="divider"></div>
+
+            <p class="pair-counter" id="t8-counter"></p>
+
+            <div class="tinder-pair" id="t8-pair">
+                <button class="tinder-card" id="t8-card-a" onclick="tinderPick(8,'a')">
+                    <span class="t-emoji" id="t8-emoji-a"></span>
+                    <span class="t-label" id="t8-label-a"></span>
+                </button>
+                <div class="tinder-vs">or</div>
+                <button class="tinder-card" id="t8-card-b" onclick="tinderPick(8,'b')">
+                    <span class="t-emoji" id="t8-emoji-b"></span>
+                    <span class="t-label" id="t8-label-b"></span>
+                </button>
+            </div>
+
+            <div id="t8-done" style="display:none;">
+                <button class="btn btn-full" style="margin-top:1rem;" onclick="goToStage(9)">Main Course →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 9: AYUSH MAIN COURSE ===== -->
+    <div id="stage-9" class="stage">
+        <div class="course-progress">
+            <span class="cp-badge done">🍳 Breakfast</span>
+            <span class="cp-sep">·</span>
+            <span class="cp-badge active">🍝 Main</span>
+            <span class="cp-sep">·</span>
+            <span class="cp-badge">🍫 Dessert</span>
+        </div>
+        <div class="card">
+            <div class="course-label">🎯 Ayush's Plate</div>
+            <h2>If he was a main course...</h2>
+            <p>Pick one from each pair.</p>
+
+            <div class="plate-preview" id="t9-plate"></div>
+
+            <div class="divider"></div>
+
+            <p class="pair-counter" id="t9-counter"></p>
+
+            <div class="tinder-pair" id="t9-pair">
+                <button class="tinder-card" id="t9-card-a" onclick="tinderPick(9,'a')">
+                    <span class="t-emoji" id="t9-emoji-a"></span>
+                    <span class="t-label" id="t9-label-a"></span>
+                </button>
+                <div class="tinder-vs">or</div>
+                <button class="tinder-card" id="t9-card-b" onclick="tinderPick(9,'b')">
+                    <span class="t-emoji" id="t9-emoji-b"></span>
+                    <span class="t-label" id="t9-label-b"></span>
+                </button>
+            </div>
+
+            <div id="t9-done" style="display:none;">
+                <button class="btn btn-full" style="margin-top:1rem;" onclick="goToStage(10)">Dessert →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 10: AYUSH DESSERT ===== -->
+    <div id="stage-10" class="stage">
+        <div class="course-progress">
+            <span class="cp-badge done">🍳 Breakfast</span>
+            <span class="cp-sep">·</span>
+            <span class="cp-badge done">🍝 Main</span>
+            <span class="cp-sep">·</span>
+            <span class="cp-badge active">🍫 Dessert</span>
+        </div>
+        <div class="card">
+            <div class="course-label">🎯 Ayush's Plate</div>
+            <h2>If he was a dessert...</h2>
+            <p>The final course. What's his sweet ending?</p>
+
+            <div class="plate-preview" id="t10-plate"></div>
+
+            <div class="divider"></div>
+
+            <p class="pair-counter" id="t10-counter"></p>
+
+            <div class="tinder-pair" id="t10-pair">
+                <button class="tinder-card" id="t10-card-a" onclick="tinderPick(10,'a')">
+                    <span class="t-emoji" id="t10-emoji-a"></span>
+                    <span class="t-label" id="t10-label-a"></span>
+                </button>
+                <div class="tinder-vs">or</div>
+                <button class="tinder-card" id="t10-card-b" onclick="tinderPick(10,'b')">
+                    <span class="t-emoji" id="t10-emoji-b"></span>
+                    <span class="t-label" id="t10-label-b"></span>
+                </button>
+            </div>
+
+            <div id="t10-done" style="display:none;">
+                <button class="btn btn-full" style="margin-top:1rem;" onclick="goToStage(11)">See the Match →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 11: MATCH REVEAL ===== -->
+    <div id="stage-11" class="stage">
+        <div class="card">
+            <div class="course-label" style="text-align:center;">✨ The Pairing</div>
+            <h2 style="text-align:center;">You built two plates.</h2>
+            <p style="text-align:center;">Now look at them together.</p>
+
+            <div class="divider"></div>
+
+            <div class="match-plates">
+                <div class="match-person">
+                    <h3>Shaina</h3>
+                    <div class="match-emoji-row" id="shaina-match-emojis"></div>
+                </div>
+                <div class="match-plus">+</div>
+                <div class="match-person">
+                    <h3>Ayush</h3>
+                    <div class="match-emoji-row" id="ayush-match-emojis"></div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div style="text-align:center; margin: 0.5rem 0 1rem;">
+                <div id="match-pct" style="font-family:'Playfair Display',serif; font-size:3.2rem; color:var(--gold); line-height:1;"></div>
+                <p class="muted" style="margin-top:0.3rem;">food personality match</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <h3 style="text-align:center; margin-bottom:0.8rem;">Draw the proposal 🎨</h3>
+
+            <div class="draw-toolbar">
+                <span class="color-swatch active" style="background:#1a1a1a;" data-color="#1a1a1a" onclick="setDrawColor(this)"></span>
+                <span class="color-swatch" style="background:#c0392b;" data-color="#c0392b" onclick="setDrawColor(this)"></span>
+                <span class="color-swatch" style="background:#c9a84c;" data-color="#c9a84c" onclick="setDrawColor(this)"></span>
+                <span class="color-swatch" style="background:#2980b9;" data-color="#2980b9" onclick="setDrawColor(this)"></span>
+                <span class="color-swatch" style="background:#27ae60;" data-color="#27ae60" onclick="setDrawColor(this)"></span>
+                <span class="color-swatch" style="background:#8e44ad;" data-color="#8e44ad" onclick="setDrawColor(this)"></span>
+                <div class="draw-sep"></div>
+                <button class="draw-btn active" data-size="3" onclick="setDrawSize(this)">S</button>
+                <button class="draw-btn" data-size="8" onclick="setDrawSize(this)">M</button>
+                <button class="draw-btn" data-size="16" onclick="setDrawSize(this)">L</button>
+                <div class="draw-sep"></div>
+                <button class="draw-btn" id="eraser-btn" onclick="toggleEraser(this)">⌫ Erase</button>
+            </div>
+
+            <canvas id="draw-canvas" height="260"></canvas>
+
+            <div class="draw-actions">
+                <button class="draw-btn" onclick="clearDrawing()">✕ Clear</button>
+                <button class="draw-btn" onclick="downloadDrawing()">⬇ Download</button>
+            </div>
+
+            <button class="btn btn-full" style="margin-top:1rem;" onclick="submitThoughts()">Now for the letter →</button>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 12: THE BILL — THE REVEAL ===== -->
+    <div id="stage-12" class="stage">
+        <div class="card">
+            <div class="course-label" style="text-align:center;">🍽️ The Bill</div>
+            <p class="muted" style="text-align:center; margin-bottom:0;">The most important one you'll ever receive</p>
+
+            <div class="divider"></div>
+
+            <span class="heart-big">💍</span>
+
+            <div class="reveal-text">
+                <p>Dear Dikita,</p>
+                <br>
+                <p>As you know, Shaina is crazy. She is kind, brilliant, and hilarious. She makes me want to be better. And somehow, she still puts up with me.</p>
+                <br>
+                <p>I want to spend the rest of my life making her as happy as she makes me. Sooooooo, I am thinking of proposing!!</p>
+                <br>
+                <p>And I couldn't do that without asking one of her most important people.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="from-line">
+                So, <em>Dikita</em> —<br>
+                Official Restaurant Critic,<br>
+                Chief Best Friend,<br>
+                Guardian of Shaina's Happiness —
+            </div>
+
+            <p class="blessing-question">
+                Will you give me your blessing?
+            </p>
+
+            <button class="btn btn-blessing" onclick="giveBlessing()">
+                💍 &nbsp; Yes, You Have My Blessing &nbsp; 💍
+            </button>
+
+            <span class="small-link" onclick="giveBlessing()">
+                I need a moment, but then I'll click the button
+            </span>
+        </div>
+    </div>
+
+    <!-- ===== STAGE 13: CELEBRATION ===== -->
+    <div id="stage-13" class="stage">
+        <div class="card">
+            <div class="emoji-row">🎊 💍 🎉</div>
+
+            <h1 style="text-align:center; margin-bottom:0.3rem;">Mission Accomplished.</h1>
+            <p class="muted" style="text-align:center;">Agent Dikita, you're the best.</p>
+
+            <div class="divider"></div>
+
+            <div class="reveal-text" style="text-align:center;">
+                <p>Dikita,</p>
+                <br>
+                <p>Thank you. Now pls help me plan. THANKS</p>
+                <br>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /container -->
+
+<script>
+    /* ---- QUIZ DATA ---- */
+    const quizData = [
+        {
+            ans: 1,
+            right: "I am sure she liked me first. (don't tell her I said that) ✓",
+            wrong: "Hmm... think about how this all really started."
+        },
+        {
+            ans: 2,
+            right: "Generated right from Snapchat. Classic. ✓",
+            wrong: "Really?? Think about what Ayush would actually do."
+        },
+        {
+            ans: 3,
+            right: "I miss Fourth. ✓",
+            wrong: "Almost! Think about who was really there that day."
+        },
+        {
+            ans: 2,
+            right: "Main Stacks. Good times. ✓",
+            wrong: "Not quite — think about where people actually go to study (or avoid studying)."
+        },
+        {
+            ans: 0,
+            right: "Iconic. ✓",
+            wrong: "Nope — think hunger."
+        }
+    ];
+
+    const quizStageIndex = { 1: 0, 2: 1, 3: 2, '3b': 3, '3c': 4 };
+
+    function selectQuiz(stageNum, choiceIdx, btn) {
+        var q = quizData[quizStageIndex[stageNum]];
+        var allOpts = document.querySelectorAll('#quiz-opts-' + stageNum + ' .option');
+
+        if (choiceIdx === q.ans) {
+            allOpts.forEach(function(o) { o.disabled = true; o.style.opacity = '0.4'; });
+            btn.style.opacity = '1';
+            btn.classList.add('correct');
+
+            setTimeout(function() {
+                document.getElementById('quiz-next-' + stageNum).style.display = 'inline-block';
+            }, 500);
+        } else {
+            btn.classList.add('wrong');
+            btn.disabled = true;
+        }
+    }
+
+    /* ---- FIELD KNOWLEDGE (stage 4) ---- */
+    function selectOption(stageNum, choice, btn) {
+        var allOpts = document.querySelectorAll('#options-' + stageNum + ' .option');
+        allOpts.forEach(function(o) { o.disabled = true; o.style.opacity = '0.45'; o.style.transform = 'none'; });
+        btn.style.opacity = '1';
+        btn.classList.add('selected');
+
+        setTimeout(function() {
+            document.getElementById('next-' + stageNum).style.display = 'inline-block';
+        }, 500);
+    }
+
+    /* ---- TINDER COURSE DATA ---- */
+    var courseData = {
+        shaina: {
+            breakfast: {
+                pairs: [
+                    { a: { e: '🍳', l: 'Eggs' },   b: { e: '🧇', l: 'Waffle' } },
+                    { a: { e: '🍓', l: 'Fruit' },  b: { e: '🥦', l: 'Veggies' } },
+                    { a: { e: '☕', l: 'Hazelnut Latte' }, b: { e: '🍵', l: 'Chai' } }
+                ],
+                doneMsg: "A warm, vibrant morning plate. That's her energy."
+            },
+            main: {
+                pairs: [
+                    { a: { e: '🍕', l: 'Pizza' },          b: { e: '🍝', l: 'Pasta' } },
+                    { a: { e: '🌶️', l: 'Spicy' },         b: { e: '🍋', l: 'Sour' } },
+                    { a: { e: '🤝', l: 'Shared plates' }, b: { e: '🥣', l: 'Own bowl' } }
+                ],
+                doneMsg: "Rich, full of flavor, and always satisfying. That tracks."
+            },
+            dessert: {
+                pairs: [
+                    { a: { e: '🍫', l: 'Chocolate' }, b: { e: '🍓', l: 'Something Fruity' } }
+                ],
+                doneMsg: "Sweet in all the right ways."
+            }
+        },
+        ayush: {
+            breakfast: {
+                pairs: [
+                    { a: { e: '🍳', l: 'Eggs' },   b: { e: '🧇', l: 'Waffle' } },
+                    { a: { e: '🍓', l: 'Fruit' },  b: { e: '🥦', l: 'Veggies' } },
+                    { a: { e: '☕', l: 'Hazelnut Latte' }, b: { e: '🍵', l: 'Chai' } }
+                ],
+                doneMsg: "A full, steady morning. Sounds about right."
+            },
+            main: {
+                pairs: [
+                    { a: { e: '🍕', l: 'Pizza' },          b: { e: '🍝', l: 'Pasta' } },
+                    { a: { e: '🌶️', l: 'Spicy' },         b: { e: '🍋', l: 'Sour' } },
+                    { a: { e: '🤝', l: 'Shared plates' }, b: { e: '🥣', l: 'Own bowl' } }
+                ],
+                doneMsg: "Bold, dependable, always hits the spot."
+            },
+            dessert: {
+                pairs: [
+                    { a: { e: '🍫', l: 'Chocolate' }, b: { e: '🍓', l: 'Something Fruity' } }
+                ],
+                doneMsg: "The perfect ending."
+            }
+        }
+    };
+
+    var tinderStageMap = {
+        5:  { person: 'shaina', course: 'breakfast' },
+        6:  { person: 'shaina', course: 'main' },
+        7:  { person: 'shaina', course: 'dessert' },
+        8:  { person: 'ayush',  course: 'breakfast' },
+        9:  { person: 'ayush',  course: 'main' },
+        10: { person: 'ayush',  course: 'dessert' }
+    };
+
+    var selections = {
+        shaina: { breakfast: [], main: [], dessert: [] },
+        ayush:  { breakfast: [], main: [], dessert: [] }
+    };
+
+    var tinderPairIdx = {};
+
+    function initTinderStage(n) {
+        var map = tinderStageMap[n];
+        var data = courseData[map.person][map.course];
+        tinderPairIdx[n] = 0;
+        selections[map.person][map.course] = [];
+
+        var plate = document.getElementById('t' + n + '-plate');
+        plate.innerHTML = '';
+        for (var i = 0; i < data.pairs.length; i++) {
+            var slot = document.createElement('div');
+            slot.className = 'plate-slot';
+            slot.id = 't' + n + '-slot-' + i;
+            plate.appendChild(slot);
+        }
+
+        document.getElementById('t' + n + '-done').style.display = 'none';
+        document.getElementById('t' + n + '-pair').style.display = 'grid';
+        document.getElementById('t' + n + '-counter').style.display = 'block';
+
+        showTinderPair(n);
+    }
+
+    function showTinderPair(n) {
+        var map = tinderStageMap[n];
+        var data = courseData[map.person][map.course];
+        var idx = tinderPairIdx[n];
+
+        if (idx >= data.pairs.length) {
+            document.getElementById('t' + n + '-pair').style.display = 'none';
+            document.getElementById('t' + n + '-counter').style.display = 'none';
+            document.getElementById('t' + n + '-done').style.display = 'block';
+            return;
+        }
+
+        var pair = data.pairs[idx];
+
+        document.getElementById('t' + n + '-counter').textContent =
+            'Pick ' + (idx + 1) + ' of ' + data.pairs.length;
+
+        document.getElementById('t' + n + '-emoji-a').textContent = pair.a.e;
+        document.getElementById('t' + n + '-label-a').textContent = pair.a.l;
+        document.getElementById('t' + n + '-emoji-b').textContent = pair.b.e;
+        document.getElementById('t' + n + '-label-b').textContent = pair.b.l;
+
+        var cardA = document.getElementById('t' + n + '-card-a');
+        var cardB = document.getElementById('t' + n + '-card-b');
+        cardA.classList.remove('chosen', 'rejected');
+        cardB.classList.remove('chosen', 'rejected');
+        cardA.disabled = false;
+        cardB.disabled = false;
+        cardA.style.opacity = '1';
+        cardB.style.opacity = '1';
+        cardA.style.transform = '';
+        cardB.style.transform = '';
+    }
+
+    function tinderPick(n, side) {
+        var map = tinderStageMap[n];
+        var data = courseData[map.person][map.course];
+        var idx = tinderPairIdx[n];
+        var pair = data.pairs[idx];
+
+        var chosen = side === 'a' ? pair.a : pair.b;
+        var cardA = document.getElementById('t' + n + '-card-a');
+        var cardB = document.getElementById('t' + n + '-card-b');
+
+        cardA.disabled = true;
+        cardB.disabled = true;
+
+        if (side === 'a') {
+            cardA.classList.add('chosen');
+            cardB.classList.add('rejected');
+        } else {
+            cardB.classList.add('chosen');
+            cardA.classList.add('rejected');
+        }
+
+        selections[map.person][map.course].push(chosen);
+
+        var slot = document.getElementById('t' + n + '-slot-' + idx);
+        slot.textContent = chosen.e;
+        slot.classList.add('filled');
+
+        setTimeout(function() {
+            tinderPairIdx[n]++;
+            showTinderPair(n);
+        }, 600);
+    }
+
+    /* ---- MATCH REVEAL ---- */
+    /* ---- DRAWING ---- */
+    var ds = { drawing: false, color: '#1a1a1a', size: 3, erasing: false, lx: 0, ly: 0, ready: false };
+
+    function initDrawCanvas() {
+        var c = document.getElementById('draw-canvas');
+        var rect = c.getBoundingClientRect();
+        c.width = Math.round(rect.width);
+        var ctx = c.getContext('2d');
+        ctx.fillStyle = '#fdf6ec';
+        ctx.fillRect(0, 0, c.width, c.height);
+        if (ds.ready) return;
+        ds.ready = true;
+
+        function pos(e) {
+            var r = c.getBoundingClientRect();
+            return { x: (e.clientX - r.left) * (c.width / r.width), y: (e.clientY - r.top) * (c.height / r.height) };
+        }
+        function startDraw(e) {
+            ds.drawing = true;
+            var p = pos(e); ds.lx = p.x; ds.ly = p.y;
+            var ctx2 = c.getContext('2d');
+            ctx2.beginPath();
+            ctx2.arc(p.x, p.y, (ds.erasing ? ds.size * 3 : ds.size) / 2, 0, Math.PI * 2);
+            ctx2.fillStyle = ds.erasing ? '#fdf6ec' : ds.color;
+            ctx2.fill();
+        }
+        function doDraw(e) {
+            if (!ds.drawing) return;
+            var p = pos(e);
+            var ctx2 = c.getContext('2d');
+            ctx2.beginPath();
+            ctx2.moveTo(ds.lx, ds.ly);
+            ctx2.lineTo(p.x, p.y);
+            ctx2.strokeStyle = ds.erasing ? '#fdf6ec' : ds.color;
+            ctx2.lineWidth = ds.erasing ? ds.size * 3 : ds.size;
+            ctx2.lineCap = 'round'; ctx2.lineJoin = 'round';
+            ctx2.stroke();
+            ds.lx = p.x; ds.ly = p.y;
+        }
+        function stopDraw() { ds.drawing = false; }
+
+        c.addEventListener('mousedown', startDraw);
+        c.addEventListener('mousemove', doDraw);
+        c.addEventListener('mouseup', stopDraw);
+        c.addEventListener('mouseleave', stopDraw);
+        c.addEventListener('touchstart', function(e) { e.preventDefault(); startDraw(e.touches[0]); }, { passive: false });
+        c.addEventListener('touchmove',  function(e) { e.preventDefault(); doDraw(e.touches[0]); },  { passive: false });
+        c.addEventListener('touchend',   stopDraw);
+    }
+
+    function setDrawColor(swatch) {
+        ds.erasing = false; ds.color = swatch.getAttribute('data-color');
+        document.querySelectorAll('.color-swatch').forEach(function(s) { s.classList.remove('active'); });
+        swatch.classList.add('active');
+        document.getElementById('eraser-btn').classList.remove('active');
+    }
+    function setDrawSize(btn) {
+        ds.size = parseInt(btn.getAttribute('data-size'));
+        document.querySelectorAll('.draw-btn[data-size]').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+    }
+    function toggleEraser(btn) {
+        ds.erasing = !ds.erasing;
+        btn.classList.toggle('active', ds.erasing);
+        if (ds.erasing) document.querySelectorAll('.color-swatch').forEach(function(s) { s.classList.remove('active'); });
+    }
+    function clearDrawing() {
+        var c = document.getElementById('draw-canvas');
+        var ctx = c.getContext('2d');
+        ctx.fillStyle = '#fdf6ec';
+        ctx.fillRect(0, 0, c.width, c.height);
+    }
+    function downloadDrawing() {
+        var c = document.getElementById('draw-canvas');
+        var link = document.createElement('a');
+        link.download = 'proposal-drawing.png';
+        link.href = c.toDataURL('image/png');
+        link.click();
+    }
+
+    function initMatchReveal() {
+        var shainaItems = [].concat(
+            selections.shaina.breakfast,
+            selections.shaina.main,
+            selections.shaina.dessert
+        );
+        var ayushItems = [].concat(
+            selections.ayush.breakfast,
+            selections.ayush.main,
+            selections.ayush.dessert
+        );
+
+        document.getElementById('shaina-match-emojis').innerHTML =
+            shainaItems.map(function(item) { return '<span>' + item.e + '</span>'; }).join('');
+        document.getElementById('ayush-match-emojis').innerHTML =
+            ayushItems.map(function(item) { return '<span>' + item.e + '</span>'; }).join('');
+
+        var matches = 0;
+        var total = Math.min(shainaItems.length, ayushItems.length);
+        for (var i = 0; i < total; i++) {
+            if (shainaItems[i].e === ayushItems[i].e) matches++;
+        }
+        var pct = total > 0 ? Math.round((matches / total) * 100) : 0;
+        document.getElementById('match-pct').textContent = pct + '%';
+
+    }
+
+    function submitThoughts() {
+        goToStage(12);
+    }
+
+    /* ---- STAGE TRANSITION ---- */
+    function goToStage(n) {
+        var current = document.querySelector('.stage.active');
+        if (current) current.classList.remove('active');
+        var next = document.getElementById('stage-' + n);
+        next.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if (n >= 5 && n <= 10) initTinderStage(n);
+        if (n === 11) { initMatchReveal(); ds.ready = false; setTimeout(initDrawCanvas, 60); }
+    }
+
+    /* ---- BLESSING ---- */
+    function giveBlessing() {
+        goToStage(13);
+        setTimeout(launchConfetti, 300);
+    }
+
+    /* ---- PASSWORD GATE ---- */
+    const GATE_PASSWORD = 'blablabar';
+    const GATE_SESSION_KEY = 'restaurants-auth';
+
+    function checkPassword(e) {
+        e.preventDefault();
+        var input = document.getElementById('password-input');
+        var errorMsg = document.getElementById('password-error');
+
+        if (input.value.toLowerCase().trim() === GATE_PASSWORD.toLowerCase()) {
+            sessionStorage.setItem(GATE_SESSION_KEY, 'true');
+            document.getElementById('password-gate').classList.add('hidden');
+            errorMsg.classList.remove('show');
+        } else {
+            input.classList.add('shake');
+            input.value = '';
+            errorMsg.classList.add('show');
+            setTimeout(function() {
+                input.classList.remove('shake');
+            }, 400);
+        }
+    }
+
+    function initPasswordGate() {
+        if (sessionStorage.getItem(GATE_SESSION_KEY) === 'true') {
+            document.getElementById('password-gate').classList.add('hidden');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initPasswordGate);
+
+    /* ---- CONFETTI ---- */
+    function launchConfetti() {
+        var canvas = document.getElementById('confetti-canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        canvas.style.display = 'block';
+
+        var colors = ['#c9a84c','#e8c96e','#ff7eb3','#ff6b6b','#ff9f43','#c0392b','#ffffff','#ffd6e0'];
+
+        function makePieces(count) {
+            var arr = [];
+            for (var i = 0; i < count; i++) {
+                arr.push({
+                    x: Math.random() * canvas.width,
+                    y: -10 - Math.random() * 200,
+                    w: Math.random() * 13 + 4,
+                    h: Math.random() * 6 + 3,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rot: Math.random() * 360,
+                    rotV: (Math.random() - 0.5) * 9,
+                    vx: (Math.random() - 0.5) * 3.5,
+                    vy: Math.random() * 4.5 + 2,
+                    alive: true
+                });
+            }
+            return arr;
+        }
+
+        var pieces = makePieces(220);
+        var rafId;
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            var any = false;
+            for (var i = 0; i < pieces.length; i++) {
+                var p = pieces[i];
+                if (!p.alive) continue;
+                p.x += p.vx; p.y += p.vy; p.rot += p.rotV;
+                if (p.y > canvas.height + 20) { p.alive = false; continue; }
+                any = true;
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rot * Math.PI / 180);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = 0.88;
+                ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                ctx.restore();
+            }
+            if (any) { rafId = requestAnimationFrame(draw); }
+            else { canvas.style.display = 'none'; }
+        }
+
+        draw();
+
+        setTimeout(function() {
+            cancelAnimationFrame(rafId);
+            pieces = makePieces(180);
+            draw();
+        }, 2200);
+    }
+</script>
+
+</body>
+</html>
