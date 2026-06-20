@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Blessing Booth 🎧</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #060610;
+      --surface: #0e0e20;
+      --surface2: #161628;
+      --surface3: #1e1e34;
+      --border: #2a2a48;
+      --pink: #ff2d78;
+      --cyan: #00e8ff;
+      --purple: #8b5cf6;
+      --yellow: #ffd700;
+      --green: #00e676;
+      --orange: #ff9800;
+      --red: #f44336;
+      --text: #e8e8ff;
+      --dim: #6666aa;
+    }
+
+    html, body {
+      width: 100%; min-height: 100vh;
+      background: var(--bg); color: var(--text);
+      font-family: 'Courier New', monospace;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse at 15% 50%, rgba(139,92,246,.09) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 50%, rgba(255,45,120,.09) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 0%,  rgba(0,232,255,.06)  0%, transparent 45%);
+    }
+
+    /* ── SCREENS ── */
+    .screen {
+      position: fixed; inset: 0; z-index: 10;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transition: opacity .6s ease, transform .6s ease;
+      overflow-y: auto; padding: 1rem;
+    }
+    .screen.hidden { opacity: 0; pointer-events: none; transform: translateY(16px) scale(.97); }
+
+    /* ── INTRO ── */
+    #intro { background: var(--bg); text-align: center; gap: 1.6rem; }
+
+    .intro-eyebrow {
+      font-size: .72rem; letter-spacing: .45em; text-transform: uppercase; color: var(--dim);
+    }
+    .intro-title {
+      font-size: clamp(2.6rem,7vw,5.2rem); font-weight: 900; line-height: 1.05;
+      background: linear-gradient(135deg, var(--pink), var(--purple), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      filter: drop-shadow(0 0 22px rgba(139,92,246,.45));
+    }
+    .intro-sub { color: var(--dim); font-size: .85rem; letter-spacing: .2em; }
+
+    .decks-preview {
+      display: flex; align-items: center; gap: 2.5rem; justify-content: center;
+    }
+    .vinyl {
+      width: 130px; height: 130px; border-radius: 50%;
+      background: repeating-radial-gradient(circle at center,
+        #111 0,#1c1c1c 3px,#111 4px,#222 7px);
+      border: 2px solid #2a2a2a; position: relative;
+      animation: vspin 3.2s linear infinite;
+    }
+    .vinyl::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      width: 22px; height: 22px; border-radius: 50%;
+      transform: translate(-50%,-50%);
+      background: radial-gradient(circle, var(--cyan), var(--purple));
+      box-shadow: 0 0 14px var(--cyan);
+    }
+    .vinyl-l { box-shadow: 0 0 38px rgba(255,45,120,.45); }
+    .vinyl-r { box-shadow: 0 0 38px rgba(0,232,255,.45); animation-direction: reverse; }
+    @keyframes vspin { to { transform: rotate(360deg); } }
+
+    .mini-mixer {
+      display: flex; flex-direction: column; align-items: center; gap: .8rem;
+      padding: 1rem 1.2rem; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 12px;
+    }
+    .mini-fader { width: 8px; height: 55px; border-radius: 4px; }
+
+    .btn-start {
+      padding: .95rem 3rem; font-size: 1.05rem; font-family: inherit;
+      font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      border: none; border-radius: 50px; color: white; cursor: pointer;
+      box-shadow: 0 0 32px rgba(255,45,120,.5), 0 4px 20px rgba(0,0,0,.5);
+      transition: all .3s ease; overflow: hidden; position: relative;
+    }
+    .btn-start:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 0 52px rgba(255,45,120,.7), 0 8px 30px rgba(0,0,0,.5); }
+
+    /* ── BOOTH ── */
+    #booth { background: var(--bg); justify-content: flex-start; overflow-y: auto; padding: 0; }
+
+    .booth-header {
+      width: 100%; padding: .9rem 1.5rem;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 20;
+    }
+    .booth-title { font-size: .75rem; letter-spacing: .3em; color: var(--cyan); text-transform: uppercase; }
+    .progress-dots { display: flex; gap: .45rem; }
+    .progress-dot {
+      width: 13px; height: 13px; border-radius: 50%;
+      border: 2px solid var(--border); background: transparent;
+      transition: all .35s ease;
+    }
+    .progress-dot.done {
+      background: var(--green); border-color: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+    #progress-text { font-size: .7rem; color: var(--dim); letter-spacing: .1em; }
+
+    /* ── DJ CONTROLLER ── */
+    .controller-wrap { width: 100%; display: flex; justify-content: center; padding: 1.2rem 1rem 2rem; }
+    .dj-controller {
+      width: min(920px, 96vw);
+      background: linear-gradient(160deg, #181830, #0e0e20, #14142a);
+      border: 2px solid #28284a; border-radius: 22px; padding: 1.5rem;
+      box-shadow: 0 0 70px rgba(139,92,246,.18), 0 24px 70px rgba(0,0,0,.65),
+                  inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    /* VU + display */
+    .vu-row {
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem;
+      margin-bottom: 1.5rem; padding: .8rem 1rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    }
+    .vu-meter { display: flex; gap: 3px; align-items: flex-end; height: 40px; }
+    .vu-bar {
+      width: 6px; border-radius: 2px; transform-origin: bottom;
+      animation: vuB var(--dur,.8s) ease-in-out infinite alternate;
+      animation-delay: var(--dly,0s);
+    }
+    @keyframes vuB { 0%{transform:scaleY(.15);opacity:.5} 100%{transform:scaleY(1);opacity:1} }
+    .vu-l .vu-bar { background: linear-gradient(to top, var(--green), var(--yellow), var(--red)); }
+    .vu-r .vu-bar { background: linear-gradient(to top, var(--cyan), var(--purple), var(--pink)); }
+    .screen-disp {
+      background: #000; border: 1px solid var(--border); border-radius: 8px;
+      padding: .5rem 1.2rem; text-align: center;
+    }
+    .screen-bpm { font-size: 1.45rem; font-weight: 700; color: var(--cyan); letter-spacing: .05em; }
+    .screen-lbl { font-size: .58rem; color: var(--dim); letter-spacing: .3em; }
+
+    /* Decks row */
+    .decks-row {
+      display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 1.4rem;
+      margin-bottom: 1.4rem;
+    }
+
+    /* Turntable */
+    .tt-section { display: flex; flex-direction: column; align-items: center; gap: .9rem; }
+    .tt-lbl { font-size: .62rem; letter-spacing: .28em; color: var(--dim); text-transform: uppercase; }
+    .tt-wrap {
+      position: relative; width: min(185px, 34vw); height: min(185px, 34vw);
+      cursor: pointer; transition: transform .25s ease;
+    }
+    .tt-wrap:hover { transform: scale(1.05); }
+    .platter {
+      width: 100%; height: 100%; border-radius: 50%;
+      background: repeating-radial-gradient(circle at center,
+        #0c0c0c 0,#1a1a1a 3px,#0c0c0c 4px,#222 7px);
+      border: 3px solid #252525;
+      animation: vspin 2s linear infinite;
+      box-shadow: 0 0 0 2px #0a0a0a;
+      position: relative;
+    }
+    .tt-left .platter  { box-shadow: 0 0 38px rgba(255,45,120,.45), 0 0 0 2px #0a0a0a; }
+    .tt-right .platter { box-shadow: 0 0 38px rgba(0,232,255,.45), 0 0 0 2px #0a0a0a; animation-direction: reverse; }
+    .platter-label {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 5;
+      width: min(62px, 12vw); height: min(62px, 12vw); border-radius: 50%;
+      background: radial-gradient(circle, var(--surface3) 58%, var(--border) 100%);
+      border: 2px solid var(--border); display: flex; align-items: center; justify-content: center;
+      font-size: .57rem; color: var(--dim); letter-spacing: .05em; text-align: center;
+    }
+    .ring {
+      position: absolute; inset: -6px; border-radius: 50%;
+      border: 3px solid transparent; pointer-events: none;
+      animation: vspin 2.8s linear infinite;
+    }
+    .tt-left  .ring { border-top-color: var(--pink);  border-right-color: var(--pink);  box-shadow: 0 0 12px var(--pink); }
+    .tt-right .ring { border-bottom-color: var(--cyan); border-left-color: var(--cyan); box-shadow: 0 0 12px var(--cyan); animation-direction: reverse; }
+    .done-badge {
+      position: absolute; top: -10px; right: -10px; width: 28px; height: 28px;
+      border-radius: 50%; background: var(--green); color: #000;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 700;
+      box-shadow: 0 0 10px var(--green); z-index: 10;
+      opacity: 0; transform: scale(0);
+      transition: all .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .done-badge.show { opacity: 1; transform: scale(1); }
+    .tt-tag { font-size: .62rem; letter-spacing: .14em; }
+
+    /* Mixer */
+    .mixer {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1rem;
+      display: flex; flex-direction: column; gap: .9rem;
+    }
+    .mixer-ttl { font-size: .58rem; letter-spacing: .4em; color: var(--dim); text-transform: uppercase; text-align: center; }
+
+    .eq-row { display: flex; justify-content: space-around; align-items: center; }
+    .knob-g {
+      display: flex; flex-direction: column; align-items: center; gap: .38rem;
+      cursor: pointer; transition: transform .2s;
+    }
+    .knob-g:hover { transform: scale(1.1); }
+    .knob {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: radial-gradient(circle at 34% 32%, #3a3a5c, #111);
+      border: 2px solid #3a3a5c; position: relative;
+      box-shadow: 0 4px 10px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08);
+      transition: all .3s;
+    }
+    .knob::after {
+      content: ''; position: absolute; top: 6px; left: 50%;
+      transform: translateX(-50%); width: 3px; height: 11px;
+      border-radius: 2px;
+    }
+    .knob-bass::after  { background: var(--pink);   box-shadow: 0 0 6px var(--pink);   }
+    .knob-mid::after   { background: var(--yellow);  box-shadow: 0 0 6px var(--yellow);  }
+    .knob-treble::after{ background: var(--cyan);   box-shadow: 0 0 6px var(--cyan);   }
+    .knob.done-k { border-color: var(--green); box-shadow: 0 0 12px var(--green); }
+    .knob-lbl { font-size: .53rem; letter-spacing: .2em; color: var(--dim); text-transform: uppercase; }
+
+    .faders-row { display: flex; justify-content: space-around; gap: 1rem; }
+    .fader-g { display: flex; flex-direction: column; align-items: center; gap: .45rem; }
+    .fader-track {
+      width: 12px; height: 80px;
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+      position: relative; overflow: visible;
+    }
+    .fader-fill {
+      position: absolute; bottom: 0; left: 0; right: 0; border-radius: 6px;
+      animation: fpulse 1.9s ease-in-out infinite alternate;
+    }
+    .fa .fader-fill { background: linear-gradient(to top, var(--purple), var(--pink)); height: 62%; }
+    .fb .fader-fill { background: linear-gradient(to top, var(--cyan), var(--purple));   height: 72%; }
+    @keyframes fpulse { 0%{transform:scaleY(.85)} 100%{transform:scaleY(1)} }
+    .fader-cap {
+      position: absolute; left: -4px; right: -4px; height: 13px;
+      background: linear-gradient(to right, #555, #999, #555);
+      border-radius: 3px; border: 1px solid #666; bottom: calc(62% - 6px);
+    }
+    .fb .fader-cap { bottom: calc(72% - 6px); }
+    .fader-lbl { font-size: .53rem; color: var(--dim); letter-spacing: .2em; }
+
+    .cf-row { display: flex; flex-direction: column; align-items: center; gap: .45rem; }
+    .cf-row-lbl {
+      display: flex; width: 100%; justify-content: space-between;
+      font-size: .52rem; color: var(--dim); letter-spacing: .25em; padding: 0 4px;
+    }
+    .cf-main {
+      width: 100%; height: 14px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 7px; position: relative; cursor: pointer; overflow: visible;
+    }
+    .cf-fill-m {
+      position: absolute; left: 0; top: 0; bottom: 0; width: 50%;
+      background: linear-gradient(to right, var(--purple), var(--pink));
+      border-radius: 7px; transition: width .1s;
+    }
+    .cf-thumb-m {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, #777, #bbb); border-radius: 4px;
+      border: 1px solid #ccc; box-shadow: 0 2px 8px rgba(0,0,0,.6);
+      cursor: grab; transition: box-shadow .2s;
+    }
+    .cf-thumb-m.unlocked { box-shadow: 0 0 16px var(--pink); border-color: var(--pink); }
+
+    /* Pads */
+    .pads-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.2rem;
+    }
+    .pads-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .pads-ttl { font-size: .6rem; letter-spacing: .4em; color: var(--dim); text-transform: uppercase; }
+    #pads-hint { font-size: .65rem; color: var(--dim); }
+    .pads-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: .5rem; }
+    .pad {
+      aspect-ratio: 1; border-radius: 7px; border: 2px solid rgba(255,255,255,.1);
+      cursor: pointer; transition: all .1s ease;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .65rem; letter-spacing: .05em; user-select: none;
+    }
+    .pad:hover  { transform: scale(.95); }
+    .pad:active { transform: scale(.87); }
+    .pad.lit    { transform: scale(.91); filter: brightness(2); }
+    .pad[data-c="pink"]   { background: rgba(255,45,120,.18);  border-color: var(--pink);   color: var(--pink);   }
+    .pad[data-c="cyan"]   { background: rgba(0,232,255,.18);   border-color: var(--cyan);   color: var(--cyan);   }
+    .pad[data-c="purple"] { background: rgba(139,92,246,.18);  border-color: var(--purple); color: var(--purple); }
+    .pad[data-c="yellow"] { background: rgba(255,215,0,.18);   border-color: var(--yellow); color: var(--yellow); }
+    .pad[data-c="green"]  { background: rgba(0,230,118,.18);   border-color: var(--green);  color: var(--green);  }
+    .pad[data-c="orange"] { background: rgba(255,152,0,.18);   border-color: var(--orange); color: var(--orange); }
+    .pad[data-c="red"]    { background: rgba(244,67,54,.18);   border-color: var(--red);    color: var(--red);    }
+    .pad[data-c="white"]  { background: rgba(255,255,255,.08); border-color: #666;          color: #aaa;          }
+
+    /* ── MODAL ── */
+    .m-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(6,6,16,.92); backdrop-filter: blur(5px);
+      display: flex; align-items: center; justify-content: center; padding: 1rem;
+      opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .m-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface); border: 2px solid var(--border); border-radius: 18px;
+      padding: 2rem; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;
+      transform: scale(.88) translateY(24px);
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      box-shadow: 0 0 70px rgba(139,92,246,.3), 0 30px 70px rgba(0,0,0,.6);
+      position: relative;
+    }
+    .m-overlay.open .modal { transform: scale(1) translateY(0); }
+    .m-accent { position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 18px 18px 0 0; }
+    .m-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 50%; width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: .9rem; color: var(--dim);
+      transition: all .2s; font-family: inherit;
+    }
+    .m-close:hover { color: var(--text); background: var(--surface3); }
+    .m-icon  { font-size: 2.8rem; text-align: center; margin-bottom: .8rem; }
+    .m-title { font-size: 1.3rem; font-weight: 700; margin-bottom: .25rem; letter-spacing: .05em; }
+    .m-sub   { color: var(--dim); font-size: .8rem; margin-bottom: 1.4rem; letter-spacing: .1em; }
+
+    .q-count { font-size: .68rem; color: var(--dim); letter-spacing: .2em; text-transform: uppercase; margin-bottom: .8rem; }
+    .q-text  { font-size: .95rem; line-height: 1.55; margin-bottom: 1rem; }
+    .opts    { display: flex; flex-direction: column; gap: .45rem; }
+    .opt {
+      padding: .68rem 1rem; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 9px;
+      cursor: pointer; font-family: inherit; font-size: .85rem;
+      color: var(--text); text-align: left; transition: all .2s;
+    }
+    .opt:hover  { border-color: var(--purple); background: rgba(139,92,246,.12); }
+    .opt:disabled { cursor: default; }
+    .opt.correct { border-color: var(--green) !important; background: rgba(0,230,118,.15) !important; color: var(--green) !important; }
+    .opt.wrong   { border-color: var(--red)   !important; background: rgba(244,67,54,.15)  !important; color: var(--red)   !important; }
+
+    /* Tap the Beat */
+    .tap-ring {
+      width: 130px; height: 130px; border-radius: 50%; margin: 1.5rem auto .8rem;
+      background: radial-gradient(circle at 36% 34%, #2a2a4a, #0e0e20);
+      border: 4px solid var(--purple);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.6rem; cursor: pointer; user-select: none;
+      box-shadow: 0 0 28px rgba(139,92,246,.35), 0 6px 22px rgba(0,0,0,.55);
+      transition: transform .07s ease, box-shadow .07s ease;
+    }
+    .tap-ring:active, .tap-ring.flash { transform: scale(.88); box-shadow: 0 0 52px rgba(139,92,246,.85), 0 6px 22px rgba(0,0,0,.55); border-color: var(--pink); }
+    .tap-bar { width: 100%; height: 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; overflow: hidden; margin: .8rem 0; }
+    .tap-fill { height: 100%; width: 0%; border-radius: 7px; background: linear-gradient(to right, var(--purple), var(--pink), var(--yellow)); transition: width .15s ease; }
+    .tap-bpm-row { display: flex; justify-content: space-between; font-size: .7rem; color: var(--dim); letter-spacing: .2em; }
+    .tap-status { text-align: center; font-size: .85rem; color: var(--dim); min-height: 2rem; letter-spacing: .08em; margin: .4rem 0; }
+
+    /* Crossfader modal */
+    .cf-chal-track {
+      width: 100%; height: 20px; background: var(--surface2);
+      border: 2px solid var(--border); border-radius: 10px;
+      position: relative; cursor: pointer; margin: 2rem 0; touch-action: none; overflow: visible;
+    }
+    .cf-chal-fill { height: 100%; width: 0%; background: linear-gradient(to right, var(--purple), var(--pink), var(--cyan)); border-radius: 10px; }
+    .cf-chal-thumb {
+      position: absolute; top: 50%; left: 0%; transform: translate(-50%,-50%);
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #777, #ddd); border-radius: 6px;
+      border: 2px solid #ddd; box-shadow: 0 3px 12px rgba(0,0,0,.55); cursor: grab;
+    }
+    .cf-chal-thumb:active { cursor: grabbing; }
+    .cf-hint { display: flex; justify-content: space-between; font-size: .7rem; color: var(--dim); letter-spacing: .2em; }
+    .reveal-box {
+      padding: 1.1rem; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface2); font-size: .85rem; line-height: 1.65;
+      color: var(--dim); text-align: center;
+      opacity: 0; transform: translateY(8px); transition: all .5s ease;
+    }
+    .reveal-box.show { opacity: 1; transform: translateY(0); border-color: var(--pink); color: var(--text); }
+
+    .cta-btn {
+      width: 100%; padding: .9rem; margin-top: 1rem;
+      font-family: inherit; font-size: .9rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      border: none; border-radius: 10px; cursor: pointer; transition: all .3s;
+    }
+    .cta-btn:hover { transform: translateY(-2px); }
+
+    /* ── EQ QUESTION BLOCKS ── */
+    .eq-q-block {
+      margin-bottom: 1.1rem; padding: .95rem;
+      background: var(--surface2); border-radius: 10px; border: 1px solid var(--border);
+      transition: border-color .3s;
+    }
+    .eq-q-block.solved { border-color: var(--green); }
+    .eq-freq-lbl { font-size: .58rem; letter-spacing: .3em; margin-bottom: .45rem; text-transform: uppercase; }
+
+    /* ── FINALE ── */
+    #finale { background: var(--bg); gap: 1.5rem; padding: 2rem; text-align: center; }
+    .finale-title {
+      font-size: clamp(2rem, 5.5vw, 3.8rem); font-weight: 900; line-height: 1.08;
+      background: linear-gradient(135deg, var(--pink), var(--purple), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .finale-card {
+      max-width: 620px; text-align: left;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+      padding: 2rem; border-left: 4px solid var(--pink); position: relative; overflow: hidden;
+    }
+    .finale-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,45,120,.04), rgba(0,232,255,.04));
+    }
+    .finale-card p { font-size: clamp(.82rem,1.7vw,.98rem); line-height: 1.82; margin-bottom: 1rem; position: relative; }
+    .finale-card p:last-child { margin-bottom: 0; }
+    .hl { color: var(--cyan); font-weight: 700; }
+    .hearts { font-size: 2rem; animation: hpulse 1s ease infinite alternate; }
+    @keyframes hpulse { from{transform:scale(1)} to{transform:scale(1.16)} }
+    .replay-btn {
+      padding: .75rem 1.8rem; font-family: inherit; font-size: .88rem; letter-spacing: .15em;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 50px;
+      color: var(--cyan); cursor: pointer; transition: all .3s;
+    }
+    .replay-btn:hover { border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,232,255,.3); }
+
+    /* Confetti */
+    .cc { position: fixed; pointer-events: none; z-index: 999; border-radius: 2px; animation: ccfall 3s ease-out forwards; }
+    @keyframes ccfall { 0%{opacity:1;transform:translateY(-20px) rotate(0)} 100%{opacity:0;transform:translateY(105vh) rotate(720deg)} }
+
+    @media (max-width: 600px) {
+      .decks-row { grid-template-columns: 1fr; }
+      .tt-wrap { width: 150px; height: 150px; }
+      .dj-controller { padding: 1rem; }
+    }
+    /* Password overlay */
+    .pw-overlay{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(6,6,16,.98);z-index:9999;padding:1rem;
+    }
+    .pw-box{max-width:420px;width:100%;background:var(--surface);border:1px solid var(--border);padding:1.3rem;border-radius:12px;text-align:left}
+    .pw-error{color:var(--red)}
+    .pw-overlay.hidden{display:none;}
+  </style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="pw-overlay" class="pw-overlay">
+  <div class="pw-box">
+    <div style="font-size:1.6rem;font-weight:700;margin-bottom:.4rem">Protected Booth</div>
+    <div style="color:var(--dim);margin-bottom:.9rem">Enter the password to access the Blessing Booth</div>
+    <input id="pw-input" type="password" placeholder="Password" autocomplete="off" style="width:100%;padding:.7rem;border-radius:8px;border:1px solid var(--border);margin-bottom:.6rem;font-family:inherit;font-size:1rem" />
+    <div id="pw-error" class="pw-error" style="color:var(--red);height:18px;font-size:.9rem;margin-bottom:.6rem;display:none">Incorrect password</div>
+    <div style="display:flex;gap:.6rem">
+      <button class="cta-btn" id="pw-submit">Enter</button>
+      <button class="cta-btn" id="pw-cancel" style="background:var(--surface2);color:var(--dim);border:1px solid var(--border)">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════ INTRO ════════════════ -->
+<div class="screen" id="intro">
+  <p class="intro-eyebrow">A special mix from</p>
+  <h1 class="intro-title">Ayush &amp; Shaina</h1>
+  <p class="intro-sub">🎧 For Shreya &amp; Sara 🎧</p>
+
+  <div class="decks-preview">
+    <div class="vinyl vinyl-l"></div>
+    <div class="mini-mixer">
+      <div class="mini-fader" style="background:linear-gradient(to top,var(--purple),var(--pink))"></div>
+      <div style="display:flex;gap:.5rem">
+        <div style="width:20px;height:20px;border-radius:50%;background:var(--surface3);border:2px solid var(--pink)"></div>
+        <div style="width:20px;height:20px;border-radius:50%;background:var(--surface3);border:2px solid var(--cyan)"></div>
+        <div style="width:20px;height:20px;border-radius:50%;background:var(--surface3);border:2px solid var(--purple)"></div>
+      </div>
+      <div class="mini-fader" style="background:linear-gradient(to top,var(--cyan),var(--purple))"></div>
+    </div>
+    <div class="vinyl vinyl-r"></div>
+  </div>
+
+  <p style="color:var(--dim);font-size:.82rem;letter-spacing:.14em">Complete 5 challenges · Unlock a special message</p>
+  <button class="btn-start" onclick="startBooth()">🎛️ Enter the Booth</button>
+</div>
+
+<!-- ════════════════ BOOTH ════════════════ -->
+<div class="screen hidden" id="booth">
+  <div class="booth-header">
+    <span class="booth-title">🎧 The Blessing Booth</span>
+    <div class="progress-dots">
+      <div class="progress-dot" id="dot-0"></div>
+      <div class="progress-dot" id="dot-1"></div>
+      <div class="progress-dot" id="dot-2"></div>
+      <div class="progress-dot" id="dot-3"></div>
+      <div class="progress-dot" id="dot-4"></div>
+    </div>
+    <span id="progress-text" style="font-size:.7rem;color:var(--dim);letter-spacing:.1em">0/5 COMPLETE</span>
+  </div>
+
+  <div class="controller-wrap">
+  <div class="dj-controller">
+
+    <!-- VU + BPM -->
+    <div class="vu-row">
+      <div class="vu-meter vu-l" id="vu-l"></div>
+      <div class="screen-disp">
+        <div class="screen-bpm" id="bpm">115</div>
+        <div class="screen-lbl">BPM · LIVE</div>
+      </div>
+      <div class="vu-meter vu-r" id="vu-r"></div>
+    </div>
+
+    <!-- Decks + Mixer -->
+    <div class="decks-row">
+
+      <!-- LEFT DECK -->
+      <div class="tt-section">
+        <div class="tt-lbl">DECK A · BOLLYWOOD</div>
+        <div class="tt-wrap tt-left" onclick="open_c('bollywood')">
+          <div class="ring"></div>
+          <div class="platter">
+            <div class="platter-label">CLICK<br>TO PLAY</div>
+          </div>
+          <div class="done-badge" id="badge-bollywood">✓</div>
+        </div>
+        <div class="tt-tag" style="color:var(--pink)">🎵 BOLLYWOOD BANGERS</div>
+      </div>
+
+      <!-- MIXER -->
+      <div class="mixer">
+        <div class="mixer-ttl">⚡ MIXER ⚡</div>
+        <div class="eq-row">
+          <div class="knob-g" onclick="open_c('eq')">
+            <div class="knob knob-bass" id="kb"></div>
+            <div class="knob-lbl">BASS</div>
+          </div>
+          <div class="knob-g" onclick="open_c('eq')">
+            <div class="knob knob-mid" id="km"></div>
+            <div class="knob-lbl">MID</div>
+          </div>
+          <div class="knob-g" onclick="open_c('eq')">
+            <div class="knob knob-treble" id="kt"></div>
+            <div class="knob-lbl">TREBLE</div>
+          </div>
+        </div>
+        <div class="faders-row">
+          <div class="fader-g fa">
+            <div class="fader-track"><div class="fader-fill"></div><div class="fader-cap"></div></div>
+            <div class="fader-lbl">CH A</div>
+          </div>
+          <div class="fader-g fb">
+            <div class="fader-track"><div class="fader-fill"></div><div class="fader-cap"></div></div>
+            <div class="fader-lbl">CH B</div>
+          </div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-row-lbl"><span>A</span><span style="font-size:.5rem;letter-spacing:.3em">CROSSFADER</span><span>B</span></div>
+          <div class="cf-main" id="cf-main-board" onclick="open_c('crossfader')">
+            <div class="cf-fill-m"></div>
+            <div class="cf-thumb-m" id="cf-thumb-board"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT DECK -->
+      <div class="tt-section">
+        <div class="tt-lbl">DECK B · FINISH THE LYRIC</div>
+        <div class="tt-wrap tt-right" onclick="open_c('djtrivia')">
+          <div class="ring"></div>
+          <div class="platter">
+            <div class="platter-label">CLICK<br>TO PLAY</div>
+          </div>
+          <div class="done-badge" id="badge-djtrivia">✓</div>
+        </div>
+        <div class="tt-tag" style="color:var(--cyan)">🎛️ DJ KNOWLEDGE</div>
+      </div>
+
+    </div><!-- /decks-row -->
+
+    <!-- Pads -->
+    <div class="pads-section">
+      <div class="pads-hdr">
+        <div class="pads-ttl">🥁 Beat Pads</div>
+        <div id="pads-hint">Click any pad to start Tap the Beat</div>
+      </div>
+      <div class="pads-grid" id="pads-grid">
+        <div class="pad" data-c="pink"   data-i="0" onclick="open_c('simon')">♩</div>
+        <div class="pad" data-c="cyan"   data-i="1" onclick="open_c('simon')">♪</div>
+        <div class="pad" data-c="purple" data-i="2" onclick="open_c('simon')">♫</div>
+        <div class="pad" data-c="yellow" data-i="3" onclick="open_c('simon')">♬</div>
+        <div class="pad" data-c="green"  data-i="4" onclick="open_c('simon')">◉</div>
+        <div class="pad" data-c="orange" data-i="5" onclick="open_c('simon')">◎</div>
+        <div class="pad" data-c="red"    data-i="6" onclick="open_c('simon')">●</div>
+        <div class="pad" data-c="white"  data-i="7" onclick="open_c('simon')">◈</div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+</div>
+
+<!-- ════════════════ FINALE ════════════════ -->
+<div class="screen hidden" id="finale">
+  <div class="hearts">🎧</div>
+  <h2 class="finale-title">For Our People</h2>
+  <div class="finale-card">
+    <p>
+      <span class="hl">Shreya</span> — you've been there since those very first Berkeley days.
+      You tied Rakhi on me and became my sister before I even realized it was happening.
+      Watching you and Shaina become completely inseparable has been one of the most
+      beautiful things to witness — you two have a bond that can't be explained, only felt.
+    </p>
+    <p>
+      <span class="hl">Sara</span> — you bring an energy into every room that makes everything feel electric.
+      Your love for music, your spirit, your warmth — the way you move through the world like
+      every moment deserves a perfect soundtrack. You make us all feel like we're living inside the drop.
+    </p>
+    <p>
+      As Shaina and I step into this next chapter together, we wanted the people who matter
+      most to us to be the first to know — and the first to be asked.
+    </p>
+    <p style="color:var(--cyan);font-size:1.05rem;font-weight:700;text-align:center;margin-top:1.5rem">
+      🎵 Will you both stand with us as we begin forever? 🎵
+    </p>
+    <p style="text-align:center;color:var(--pink)">
+      We love you so much. More than any playlist could ever hold. 💕
+    </p>
+    <p style="text-align:center;color:var(--dim);font-size:.72rem;margin-top:1.4rem;letter-spacing:.2em">
+      — Ayush &amp; Shaina
+    </p>
+  </div>
+  <div class="hearts">💕 🎛️ 💕</div>
+  <button class="replay-btn" onclick="launchConfetti()">🎉 Celebrate Again!</button>
+</div>
+
+<!-- ════════════════ MODAL ════════════════ -->
+<div class="m-overlay" id="m-overlay" onclick="closeOverlay(event)">
+  <div class="modal">
+    <div class="m-accent" id="m-accent"></div>
+    <button class="m-close" onclick="closeModal()">✕</button>
+    <div id="m-body"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const done = new Set();
+const TOTAL = 5;
+const CHALLENGE_ORDER = ['bollywood','djtrivia','eq','simon','crossfader'];
+const COLORS = { bollywood:'#ff2d78', djtrivia:'#00e8ff', eq:'#ffd700', simon:'#8b5cf6', crossfader:'#ff2d78' };
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+function initVU() {
+  const h = [28,58,82,50,92,68,42,80,62,48];
+  const d = [.6,.8,.5,.9,.7,1,.6,.8,.5,.7];
+  ['vu-l','vu-r'].forEach(id => {
+    const el = document.getElementById(id);
+    h.forEach((ht,i) => {
+      const b = document.createElement('div');
+      b.className = 'vu-bar';
+      b.style.height = ht + '%';
+      b.style.setProperty('--dur', d[i]+'s');
+      b.style.setProperty('--dly', (i*.07)+'s');
+      el.appendChild(b);
+    });
+  });
+}
+function initBPM() {
+  setInterval(() => {
+    document.getElementById('bpm').textContent = 112 + Math.floor(Math.random()*7);
+  }, 1800);
+}
+
+function startBooth() {
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('booth').classList.remove('hidden');
+  initVU(); initBPM();
+}
+
+// ═══════════════════════════════════════════════════
+// CHALLENGE DISPATCHER
+// ═══════════════════════════════════════════════════
+function open_c(id) {
+  if (id === 'crossfader' && done.size < 4) { showLocked(); return; }
+  if (done.has(id)) { showDone(); return; }
+
+  const body = document.getElementById('m-body');
+  document.getElementById('m-accent').style.background =
+    `linear-gradient(to right, ${COLORS[id]||'#8b5cf6'}, ${COLORS[id]||'#00e8ff'})`;
+
+  const builders = { bollywood: buildBollywood, djtrivia: buildDJ, eq: buildEQ, simon: buildSimon, crossfader: buildCF };
+  body.innerHTML = builders[id]();
+
+  document.getElementById('m-overlay').classList.add('open');
+  if (id === 'simon') initSimon();
+  if (id === 'crossfader') initCF();
+}
+
+function closeOverlay(e) { if (e.target === document.getElementById('m-overlay')) closeModal(); }
+function closeModal() { document.getElementById('m-overlay').classList.remove('open'); }
+
+function markDone(id) {
+  done.add(id);
+  updateProgress();
+
+  const badge = document.getElementById('badge-' + id);
+  if (badge) badge.classList.add('show');
+
+  if (id === 'eq') {
+    ['kb','km','kt'].forEach(k => document.getElementById(k)?.classList.add('done-k'));
+  }
+  if (id === 'simon') {
+    document.getElementById('pads-hint').textContent = '✓ BEAT LOCKED IN';
+    document.getElementById('pads-hint').style.color = 'var(--green)';
+    document.querySelectorAll('.pad').forEach(p => { p.style.opacity='.45'; p.onclick=null; });
+  }
+  if (id === 'crossfader') {
+    document.getElementById('cf-thumb-board')?.classList.add('unlocked');
+  }
+
+  closeModal();
+  if (done.size === TOTAL) setTimeout(showFinale, 900);
+}
+
+function updateProgress() {
+  const n = done.size;
+  document.getElementById('progress-text').textContent = n+'/'+TOTAL+' COMPLETE';
+  CHALLENGE_ORDER.forEach((id,i) => {
+    if (done.has(id)) document.getElementById('dot-'+i)?.classList.add('done');
+  });
+  if (n >= 4) document.getElementById('cf-thumb-board')?.classList.add('unlocked');
+}
+
+function showFinale() {
+  document.getElementById('booth').classList.add('hidden');
+  document.getElementById('finale').classList.remove('hidden');
+  launchConfetti();
+}
+
+function showLocked() {
+  document.getElementById('m-accent').style.background = 'linear-gradient(to right,#333,#555)';
+  document.getElementById('m-body').innerHTML = `
+    <div class="m-icon">🔒</div>
+    <div class="m-title">Locked!</div>
+    <div class="m-sub">Complete the other 4 challenges first</div>
+    <p style="color:var(--dim);font-size:.85rem;line-height:1.6;text-align:center">
+      The Final Mix unlocks once you've crushed<br>Bollywood Bangers, DJ Knowledge, EQ Quiz &amp; Beat Memory.
+    </p>
+    <p style="text-align:center;margin-top:1rem;font-size:1.4rem;letter-spacing:.3em">
+      ${[...Array(4)].map((_,i) => i<done.size?'🟢':'⚫').join('')}
+    </p>
+    <button class="cta-btn" style="background:var(--surface2);color:var(--dim);border:1px solid var(--border)" onclick="closeModal()">Got it!</button>
+  `;
+  document.getElementById('m-overlay').classList.add('open');
+}
+
+function showDone() {
+  document.getElementById('m-accent').style.background = 'linear-gradient(to right, var(--green), #00ff88)';
+  document.getElementById('m-body').innerHTML = `
+    <div class="m-icon">✅</div>
+    <div class="m-title">Already crushed it!</div>
+    <div class="m-sub" style="color:var(--green)">This challenge is complete</div>
+    <p style="color:var(--dim);font-size:.85rem;text-align:center;margin-top:.8rem">
+      Nice work! Try the remaining challenges 🎧
+    </p>
+    <button class="cta-btn" style="background:linear-gradient(135deg,var(--green),#00aa55);color:#000" onclick="closeModal()">Back to the Booth</button>
+  `;
+  document.getElementById('m-overlay').classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════
+// BOLLYWOOD TRIVIA
+// ═══════════════════════════════════════════════════
+const bQs = [
+  { era: '📼 Classic',
+    q: 'Satte Pe Satta (1982) — featuring Amitabh Bachchan in a legendary double role — is a Bollywood adaptation of which classic Hollywood musical?',
+    opts: ['Oklahoma!', 'Seven Brides for Seven Brothers', 'Guys and Dolls', 'South Pacific'], ans: 1 },
+  { era: '🎞 90s',
+    q: 'In Badshah (1999), Shah Rukh Khan plays a small-time private detective. Which legendary Bollywood comedian played his scene-stealing sidekick throughout the film?',
+    opts: ['Paresh Rawal', 'Kader Khan', 'Johnny Lever', 'Shakti Kapoor'], ans: 2 },
+  { era: '💿 2000s',
+    q: 'In 2003, actor Vivek Oberoi held a notorious press conference publicly accusing which superstar of making threatening calls to him over his relationship with Aishwarya Rai — a move that famously derailed Vivek\'s own career?',
+    opts: ['Salman Khan', 'Shah Rukh Khan', 'Akshay Kumar', 'Hrithik Roshan'], ans: 0 },
+  { era: '📱 2010s',
+    q: 'Irrfan Khan won the National Award for Best Actor for \'Paan Singh Tomar\' (2012), playing an athlete-turned-dacoit. Which sport did the real Paan Singh Tomar dominate nationally before his life took a dark turn?',
+    opts: ['Wrestling', 'Boxing', 'Steeplechase', 'Kabaddi'], ans: 2 },
+  { era: '🔥 Modern',
+    q: 'Priyanka Chopra dramatically walked out of a major 2019 film alongside Salman Khan, reportedly due to her engagement to Nick Jonas. Which film did she exit — with Katrina Kaif stepping in to replace her?',
+    opts: ['Tiger 3', 'Bharat', 'Radhe', 'Sultan 2'], ans: 1 },
+];
+let bQ=0, bScore=0;
+
+function buildBollywood() { bQ=0; bScore=0; return renderBQ(); }
+function renderBQ() {
+  const q = bQs[bQ];
+  return `
+    <div class="m-icon">🎵</div>
+    <div class="m-title">Bollywood Bangers</div>
+    <div class="m-sub" style="color:var(--pink)">${q.era}</div>
+    <div class="q-count">Question ${bQ+1} of ${bQs.length}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" onclick="ansB(${i})">${o}</button>`).join('')}</div>
+  `;
+}
+function ansB(i) {
+  const q = bQs[bQ];
+  const btns = document.querySelectorAll('#m-body .opt');
+  const chosen = btns[i];
+  // If correct, lock in and advance
+  if (i === q.ans) {
+    btns.forEach(b => b.disabled = true);
+    chosen.classList.add('correct');
+    bScore++;
+    bQ++;
+    setTimeout(() => {
+      if (bQ < bQs.length) { document.getElementById('m-body').innerHTML = renderBQ(); return; }
+      const great = bScore >= 3;
+      document.getElementById('m-body').innerHTML = `
+        <div class="m-icon">🏆</div>
+        <div class="m-title">Score: ${bScore}/${bQs.length}</div>
+        <div class="m-sub" style="color:var(--yellow)">${great?'🎉 Certified Bollywood Nerd!':'Not bad — but a true fan would know these!'}</div>
+        <p style="color:var(--dim);font-size:.88rem;line-height:1.6;margin-top:.8rem">
+          ${great?'Ayush &amp; Shaina would be proud. That\'s some serious Bollywood IQ! 🎵':'Go rewatch some classics and try again 🎬'}
+        </p>
+        <button class="cta-btn" style="background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff" onclick="markDone('bollywood')">
+          🎵 Complete Challenge
+        </button>
+      `;
+    }, 900);
+  } else {
+    // Wrong: mark this option as wrong and disable it, don't reveal the correct answer
+    chosen.classList.add('wrong');
+    chosen.disabled = true;
+    // small visual shake
+    chosen.classList.add('shake');
+    setTimeout(() => chosen.classList.remove('shake'), 450);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// FINISH THE LYRIC
+// ─────────────────────────────────────────────────
+// HOW TO FILL IN:
+//   Each question has a `prompt` (the line shown on screen,
+//   ending just before the blank) and `opts` (4 choices).
+//   Set `ans` to the index (0-3) of the correct option.
+//   Paste the lyric text exactly as it appears on Genius.
+// ═══════════════════════════════════════════════════
+const djQs = [
+  {
+    artist: 'Ariana Grande',
+    song:   'hate that I made you love me',
+    // The line shown on screen — paste the lyric setup, ending with "..."
+    prompt: 'Yeah, I, I, I hate that I made you love me',
+    // Option at index `ans` must be the real next lyric; others are fakes
+    opts: [
+      'I wish I could take it back',
+      'Sorry if I made me your type',   // ← change ans to 1 if correct is here
+      'I never meant to pull you close',
+      'Guess I burned too bright tonight',
+    ],
+    ans: 1,   // ← index of the correct option above
+  },
+  {
+    artist: 'Fred again..',
+    song:   'Victory Lap Five',
+    // The line shown on screen — paste the lyric setup, ending with "..."
+    prompt: 'Talking bout a detox, pussy like a beatbox',
+    opts: [
+      'All grown up, bitch lookin like Selena, Lena',   // ← ans: 0 if correct is here
+      'We spun the night like a vinyl replay',
+      'Your heartbeat synced to the bassline',
+      'Left the lights on for the morning rush',
+    ],
+    ans: 0,
+  },
+  {
+    artist: 'Arijit Singh',
+    song:   'Tere Pyaar Mein',
+    prompt: 'Tere pyaar mein, tere pyaar mein',
+    opts: [
+      'Aankhon se bheegti hai raat ye',
+      'Har lamha maangta hoon tera saath',
+      'Dua maangta hai bas bheege bheege bheege',   // ← ans: 2 if correct is here
+      'Dil chahta hai bas bheege bheege bheege',
+    ],
+    ans: 2,
+  },
+  {
+    artist: 'Anuv Jain',
+    song:   'Baarishein',
+    prompt: 'Ab tu aati hai, bulaati hai',
+    opts: [
+      'Raaton mein teri yaad satati hai',
+      'Chalti hawa mein teri khushboo hai',
+      'Pal pal dil ke paas aati ho',
+      'Bistar se yoon girati hai',   // ← ans: 3 if correct is here
+    ],
+    ans: 3,
+  },
+];
+let djQ=0, djScore=0;
+
+function buildDJ() { djQ=0; djScore=0; return renderDJQ(); }
+function renderDJQ() {
+  const q = djQs[djQ];
+  return `
+    <div class="m-icon">🎵</div>
+    <div class="m-title">Finish the Lyric</div>
+    <div class="m-sub" style="color:var(--cyan)">${q.artist} · <em>${q.song}</em></div>
+    <div class="q-count">Question ${djQ+1} of ${djQs.length}</div>
+    <div class="q-text" style="font-style:italic;border-left:3px solid var(--purple);padding-left:.8rem;line-height:1.7">
+      "${q.prompt} <span style='color:var(--dim)'>___</span>"
+    </div>
+    <div style="font-size:.68rem;color:var(--dim);letter-spacing:.2em;margin:.6rem 0 .4rem">WHAT COMES NEXT?</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" onclick="ansDJ(${i})">${o}</button>`).join('')}</div>
+  `;
+}
+function ansDJ(i) {
+  const q = djQs[djQ];
+  const btns = document.querySelectorAll('#m-body .opt');
+  const chosen = btns[i];
+  // If correct, lock and advance
+  if (i === q.ans) {
+    btns.forEach(b => b.disabled = true);
+    chosen.classList.add('correct');
+    djScore++;
+    djQ++;
+    setTimeout(() => {
+      if (djQ < djQs.length) { document.getElementById('m-body').innerHTML = renderDJQ(); return; }
+      const great = djScore >= 3;
+      document.getElementById('m-body').innerHTML = `
+        <div class="m-icon">🎧</div>
+        <div class="m-title">Score: ${djScore}/${djQs.length}</div>
+        <div class="m-sub" style="color:var(--cyan)">${great?'🔥 The playlist knows you!':'Close — better luck next listen!'}</div>
+        <p style="color:var(--dim);font-size:.88rem;line-height:1.6;margin-top:.8rem">
+          ${great?'You clearly have these songs on repeat. We see you. 🎵':'Stack those plays and come back stronger 🎧'}
+        </p>
+        <button class="cta-btn" style="background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000" onclick="markDone('djtrivia')">
+          🎵 Complete Challenge
+        </button>
+      `;
+    }, 900);
+  } else {
+    // Wrong: mark chosen wrong and disable it, don't reveal the correct answer
+    chosen.classList.add('wrong');
+    chosen.disabled = true;
+    chosen.classList.add('shake');
+    setTimeout(() => chosen.classList.remove('shake'), 450);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// EQ CHALLENGE (4 questions about the four of us)
+// ═══════════════════════════════════════════════════
+const eqQs = [
+  { freq:'BASS', color:'var(--pink)',
+    q: 'What restaurant did Ayush meet Sara at for the very first time?',
+    opts: ['AMC Bay Street', 'The Glade', 'Bar Tako in San Pedro', "Shaina's Oakland Place"], ans: 2 },
+  { freq:'MID', color:'var(--yellow)',
+    q: 'Where did Ayush meet Shreya for the very first time?',
+    opts: ['Cal Football Game', 'In Class', 'Unit 3 Lobby', 'DoubleTree Hilton'], ans: 3 },
+  { freq:'TREBLE', color:'var(--cyan)',
+    q: 'When was the LAST time all four of us (Shreya, Sara, Shaina & Ayush) hung out together?',
+    opts: ['Guruji Satsang', 'Escape Room', 'Korean Food Dinner', 'Shizen'], ans: 1 },
+  { freq:'SUB', color:'var(--purple)',
+    q: 'When was the FIRST time all four of us hung out together, just the four of us?',
+    opts: ['Satsang', 'Shizen', 'Top Golf', 'Lollapalooza'], ans: 3 },
+];
+let eqSolved = [];
+
+function buildEQ() { eqSolved=[]; return renderEQ(); }
+function renderEQ() {
+  const allDone = eqSolved.length === 4;
+  return `
+    <div class="m-icon">🎚️</div>
+    <div class="m-title">EQ Quiz</div>
+    <div class="m-sub">Tune into the right frequencies</div>
+    ${eqQs.map((q,i) => `
+      <div class="eq-q-block${eqSolved.includes(i)?' solved':''}">
+        <div class="eq-freq-lbl" style="color:${q.color}">${q.freq} FREQUENCY</div>
+        <div class="q-text" style="font-size:.88rem;margin-bottom:.7rem">${q.q}</div>
+        ${eqSolved.includes(i)
+          ? `<div style="color:var(--green);font-size:.8rem">✓ ${q.opts[q.ans]}</div>`
+          : `<div class="opts" style="gap:.3rem">
+              ${q.opts.map((o,j)=>`<button class="opt" style="padding:.5rem .85rem;font-size:.8rem" onclick="ansEQ(${i},${j})">${o}</button>`).join('')}
+             </div>`
+        }
+      </div>
+    `).join('')}
+    ${allDone
+      ? `<button class="cta-btn" style="background:linear-gradient(135deg,var(--yellow),var(--orange));color:#000" onclick="markDone('eq')">🎚️ Complete Challenge</button>`
+      : `<div style="color:var(--dim);font-size:.72rem;text-align:center;letter-spacing:.2em">ANSWER ALL 4 TO COMPLETE</div>`
+    }
+  `;
+}
+function ansEQ(qi, i) {
+  if (eqSolved.includes(qi)) return;
+  if (i === eqQs[qi].ans) {
+    eqSolved.push(qi);
+    document.getElementById('m-body').innerHTML = renderEQ();
+  } else {
+    // Wrong — shake the block briefly
+    const blocks = document.querySelectorAll('.eq-q-block');
+    if (blocks[qi]) {
+      blocks[qi].style.animation = 'none';
+      blocks[qi].style.borderColor = 'var(--red)';
+      setTimeout(() => { blocks[qi].style.borderColor = ''; }, 500);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// TAP THE BEAT
+// ═══════════════════════════════════════════════════
+// Player taps a big button 8 times; we measure their
+// average BPM and check if it lands near the target.
+const TAP_TARGET = 115;
+const TAP_NEEDED = 8;
+let tapTimes = [];
+let tapRunning = false;
+let tapIdleTimer = null;
+
+function buildSimon() {
+  return `
+    <div class="m-icon">🥁</div>
+    <div class="m-title">Tap the Beat</div>
+    <div class="m-sub">Target BPM: <strong style="color:var(--cyan)">${TAP_TARGET}</strong> — tap the drum ${TAP_NEEDED} times in rhythm!</div>
+    <div class="tap-ring" id="tap-btn" onclick="tapBeat()">🥁</div>
+    <div class="tap-bar"><div class="tap-fill" id="tap-fill"></div></div>
+    <div class="tap-bpm-row">
+      <span>0 BPM</span>
+      <span id="tap-live" style="color:var(--text);font-weight:700">—</span>
+      <span>${TAP_TARGET} TARGET</span>
+    </div>
+    <div class="tap-status" id="tap-status">Tap the drum to start!</div>
+    <div id="tap-cta"></div>
+  `;
+}
+function initSimon() { tapTimes=[]; tapRunning=false; }
+
+function tapBeat() {
+  const now = performance.now();
+  const btn = document.getElementById('tap-btn');
+
+  // Flash animation
+  btn.classList.add('flash');
+  setTimeout(() => btn.classList.remove('flash'), 100);
+
+  tapTimes.push(now);
+  tapRunning = true;
+
+  // Reset if idle for 2.5s
+  clearTimeout(tapIdleTimer);
+  tapIdleTimer = setTimeout(() => {
+    tapTimes = [];
+    tapRunning = false;
+    document.getElementById('tap-live').textContent = '—';
+    document.getElementById('tap-fill').style.width = '0%';
+    document.getElementById('tap-status').textContent = 'Too slow! Tap again to restart.';
+    document.getElementById('tap-status').style.color = 'var(--red)';
+  }, 2500);
+
+  if (tapTimes.length < 2) {
+    document.getElementById('tap-status').textContent = `Keep tapping... (${tapTimes.length}/${TAP_NEEDED})`;
+    document.getElementById('tap-status').style.color = 'var(--dim)';
+    return;
+  }
+
+  // Calc avg BPM from last N taps
+  const recent = tapTimes.slice(-6);
+  const gaps = recent.slice(1).map((t,i) => t - recent[i]);
+  const avgGap = gaps.reduce((a,b) => a+b, 0) / gaps.length;
+  const bpm = Math.round(60000 / avgGap);
+
+  const liveEl = document.getElementById('tap-live');
+  const fillEl = document.getElementById('tap-fill');
+  const statusEl = document.getElementById('tap-status');
+
+  liveEl.textContent = bpm + ' BPM';
+  const pct = Math.min(100, (bpm / (TAP_TARGET * 1.5)) * 100);
+  fillEl.style.width = pct + '%';
+
+  const diff = Math.abs(bpm - TAP_TARGET);
+  if (diff <= 6) {
+    liveEl.style.color = 'var(--green)';
+    statusEl.style.color = 'var(--green)';
+    statusEl.textContent = `🔥 ${bpm} BPM — On the beat! (${tapTimes.length}/${TAP_NEEDED})`;
+  } else if (diff <= 15) {
+    liveEl.style.color = 'var(--yellow)';
+    statusEl.style.color = 'var(--yellow)';
+    statusEl.textContent = `${bpm > TAP_TARGET ? '⬆ Too fast' : '⬇ Too slow'} — aim for ${TAP_TARGET}`;
+  } else {
+    liveEl.style.color = 'var(--red)';
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = `${bpm > TAP_TARGET ? '⬆ Way too fast!' : '⬇ Way too slow!'} — ${TAP_TARGET} BPM target`;
+  }
+
+  // Win: 8 taps and within range
+  if (tapTimes.length >= TAP_NEEDED && diff <= 15) {
+    clearTimeout(tapIdleTimer);
+    tapRunning = false;
+    liveEl.style.color = 'var(--green)';
+    statusEl.textContent = `🎉 ${bpm} BPM locked in! Sara would approve!`;
+    statusEl.style.color = 'var(--green)';
+    fillEl.style.width = '100%';
+    document.getElementById('tap-cta').innerHTML = `
+      <button class="cta-btn" style="background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;margin-top:.9rem" onclick="markDone('simon')">
+        🥁 Complete Challenge
+      </button>`;
+  } else if (tapTimes.length >= TAP_NEEDED && diff > 15) {
+    // Enough taps but off-tempo — reset and try again
+    tapTimes = [];
+    statusEl.textContent = `Almost! Keep the rhythm closer to ${TAP_TARGET} BPM`;
+    statusEl.style.color = 'var(--orange)';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// CROSSFADER REVEAL
+// ═══════════════════════════════════════════════════
+function buildCF() {
+  return `
+    <div class="m-icon">🎧</div>
+    <div class="m-title">The Final Mix</div>
+    <div class="m-sub">Drag the crossfader all the way across to unlock the message</div>
+    <div class="cf-hint"><span>START</span><span>→</span><span>REVEAL</span></div>
+    <div class="cf-chal-track" id="cf-t">
+      <div class="cf-chal-fill" id="cf-f"></div>
+      <div class="cf-chal-thumb" id="cf-th"></div>
+    </div>
+    <div class="reveal-box" id="cf-reveal">✨ Keep sliding... ✨</div>
+    <div id="cf-cta"></div>
+  `;
+}
+function initCF() {
+  setTimeout(() => {
+    const track = document.getElementById('cf-t');
+    const fill  = document.getElementById('cf-f');
+    const thumb = document.getElementById('cf-th');
+    const reveal = document.getElementById('cf-reveal');
+    if (!track) return;
+    let dragging=false, revealed=false;
+
+    const pct = (cx) => {
+      const r = track.getBoundingClientRect();
+      return Math.max(0, Math.min(100, (cx - r.left) / r.width * 100));
+    };
+    const update = (p) => {
+      thumb.style.left = p + '%';
+      fill.style.width  = p + '%';
+      if (p > 96 && !revealed) {
+        revealed = true;
+        reveal.classList.add('show');
+        reveal.innerHTML = `
+          <div style="color:var(--pink);font-weight:700;font-size:1rem;margin-bottom:.5rem">🎉 You found it!</div>
+          <div style="color:var(--dim);font-size:.82rem">The message is ready. Hit Complete below!</div>
+        `;
+        const btn = document.createElement('button');
+        btn.className = 'cta-btn';
+        btn.style.cssText = 'background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff';
+        btn.textContent = '🎧 Reveal the Message';
+        btn.onclick = () => markDone('crossfader');
+        document.getElementById('cf-cta').appendChild(btn);
+      }
+    };
+
+    track.addEventListener('mousedown',  e => { dragging=true; update(pct(e.clientX)); });
+    document.addEventListener('mousemove', e => { if(dragging) update(pct(e.clientX)); });
+    document.addEventListener('mouseup',   () => dragging=false);
+    track.addEventListener('touchstart',  e => { dragging=true; update(pct(e.touches[0].clientX)); }, {passive:true});
+    document.addEventListener('touchmove', e => { if(dragging) update(pct(e.touches[0].clientX)); }, {passive:true});
+    document.addEventListener('touchend',  () => dragging=false);
+  }, 80);
+}
+
+// ═══════════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════════
+function launchConfetti() {
+  const cols = ['#ff2d78','#00e8ff','#8b5cf6','#ffd700','#00e676','#ff9800'];
+  for (let i=0; i<90; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'cc';
+      const w = 4+Math.random()*8, h = 4+Math.random()*8;
+      el.style.cssText = `
+        left:${Math.random()*100}vw; top:-12px;
+        width:${w}px; height:${h}px;
+        background:${cols[Math.floor(Math.random()*cols.length)]};
+        border-radius:${Math.random()>.5?'50%':'2px'};
+        animation-duration:${2+Math.random()*2.2}s;
+        animation-delay:${Math.random()*.6}s;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }, i*35);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// PASSWORD GATE
+// ═══════════════════════════════════════════════════
+const PW_KEY = 'booth_unlocked_v1';
+const CORRECT_PW = 'baina';
+function hidePwOverlay() {
+  const o = document.getElementById('pw-overlay');
+  if (!o) return;
+  o.classList.add('hidden');
+}
+function showPwOverlay() {
+  const o = document.getElementById('pw-overlay');
+  if (!o) return;
+  o.classList.remove('hidden');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const stored = localStorage.getItem(PW_KEY);
+  if (stored === '1') { hidePwOverlay(); return; }
+
+  showPwOverlay();
+  const submit = document.getElementById('pw-submit');
+  const cancel = document.getElementById('pw-cancel');
+  const inp = document.getElementById('pw-input');
+  const err = document.getElementById('pw-error');
+
+  const tryPw = () => {
+    const v = inp.value || '';
+    if (v.trim() === CORRECT_PW) {
+      localStorage.setItem(PW_KEY, '1');
+      hidePwOverlay();
+    } else {
+      err.style.display = 'block';
+      inp.classList.add('shake');
+      setTimeout(() => { inp.classList.remove('shake'); }, 500);
+    }
+  };
+  submit.addEventListener('click', tryPw);
+  inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryPw(); });
+  cancel.addEventListener('click', () => { window.location.href = 'about:blank'; });
+});
+
+/* small shake animation for wrong password */
+const s = document.createElement('style');
+s.textContent = `@keyframes shake{0%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}100%{transform:translateX(0)}}.shake{animation:shake .45s}`;
+document.head.appendChild(s);
+</script>
+</body>
+</html>
